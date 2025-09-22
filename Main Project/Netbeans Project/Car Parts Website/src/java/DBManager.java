@@ -221,57 +221,433 @@ public class DBManager {
         }
     }
     
-    public void deleteFirstRowFromDB(String table, String field, String value, String fieldType) {
+    public void addNewItemFromArray(String table, String[] fields, String[] rowArray, String[] fieldTypes) {
         Connection conn = null;
-        PreparedStatement selectStmt = null;
-        PreparedStatement deleteStmt = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            if (fields.length != rowArray.length || fields.length != fieldTypes.length) {
+                System.out.println("Fields length:" + fields.length + " rowArray length:" + rowArray.length + " FieldTypes length:" + fieldTypes.length );
+                throw new IllegalArgumentException("Fields, rowArray, and fieldTypes must have the same length (excluding PK).");
+            }
+
+            conn = DriverManager.getConnection(url);
+
+            // Step 1: Detect primary key column automatically
+            String primaryKeyField = null;
+            java.sql.DatabaseMetaData dbMeta = conn.getMetaData();
+            rs = dbMeta.getPrimaryKeys(null, null, table);
+            if (rs.next()) {
+                primaryKeyField = rs.getString("COLUMN_NAME");
+            }
+            rs.close();
+
+            if (primaryKeyField == null) {
+                throw new RuntimeException("Could not detect primary key column for table " + table);
+            }
+
+            // Step 2: Find next primary key value
+            String pkQuery = "SELECT MAX(" + primaryKeyField + ") FROM " + table;
+            pstmt = conn.prepareStatement(pkQuery);
+            rs = pstmt.executeQuery();
+
+            int nextPrimaryKey = 1;
+            if (rs.next()) {
+                nextPrimaryKey = rs.getInt(1) + 1;
+            }
+
+            rs.close();
+            pstmt.close();
+
+            // Step 3: Build final field list (PK + user fields)
+            String[] allFields = new String[fields.length + 1];
+            String[] allValues = new String[fields.length + 1];
+            String[] allTypes = new String[fields.length + 1];
+
+            allFields[0] = primaryKeyField;
+            allValues[0] = String.valueOf(nextPrimaryKey);
+            allTypes[0] = "int"; // assume PK is int
+
+            for (int i = 0; i < fields.length; i++) {
+                allFields[i + 1] = fields[i];
+                allValues[i + 1] = rowArray[i];
+                allTypes[i + 1] = fieldTypes[i];
+            }
+
+            // Step 4: Build SQL
+            StringBuilder fieldList = new StringBuilder();
+            StringBuilder placeholders = new StringBuilder();
+            for (int i = 0; i < allFields.length; i++) {
+                fieldList.append(allFields[i]);
+                placeholders.append("?");
+                if (i < allFields.length - 1) {
+                    fieldList.append(", ");
+                    placeholders.append(", ");
+                }
+            }
+
+            String sql = "INSERT INTO " + table + " (" + fieldList + ") VALUES (" + placeholders + ")";
+            pstmt = conn.prepareStatement(sql);
+
+            // Step 5: Bind parameters
+            for (int i = 0; i < allValues.length; i++) {
+                String value = allValues[i];
+                String type = allTypes[i].toLowerCase();
+                switch (type) {
+                    case "int":
+                    case "integer":
+                        pstmt.setInt(i + 1, Integer.parseInt(value));
+                        break;
+                    case "double":
+                    case "float":
+                    case "currency":
+                        pstmt.setDouble(i + 1, Double.parseDouble(value));
+                        break;
+                    case "boolean":
+                        pstmt.setBoolean(i + 1, Boolean.parseBoolean(value));
+                        break;
+                    case "date":
+                        pstmt.setDate(i + 1, java.sql.Date.valueOf(value));
+                        break;
+                    default:
+                        pstmt.setString(i + 1, value);
+                        break;
+                }
+            }
+
+            int rowsInserted = pstmt.executeUpdate();
+            System.out.println("Inserted " + rowsInserted + " row(s) into " + table + " (PK=" + nextPrimaryKey + ")");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+    
+    public void deleteFirstRowFromDB(String table, String column, String value, String dataType) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            conn = DriverManager.getConnection(url);
+
+            // MS Access supports DELETE TOP 1
+            String sql = "DELETE FROM " + table + " WHERE " + column + " = ?";
+
+            // We can’t directly use DELETE TOP 1 in Access without subquery for some versions.
+            // Safer approach: find the primary key of the first matching row, then delete by PK.
+            String primaryKeyField = null;
+            java.sql.DatabaseMetaData dbMeta = conn.getMetaData();
+            ResultSet rs = dbMeta.getPrimaryKeys(null, null, table);
+            if (rs.next()) {
+                primaryKeyField = rs.getString("COLUMN_NAME");
+            }
+            rs.close();
+
+            if (primaryKeyField != null) {
+                // First get PK of first matching row
+                String selectSql = "SELECT " + primaryKeyField + " FROM " + table + " WHERE " + column + " = ? ORDER BY " + primaryKeyField;
+                pstmt = conn.prepareStatement(selectSql);
+                switch (dataType.toLowerCase()) {
+                    case "int":
+                    case "integer":
+                        pstmt.setInt(1, Integer.parseInt(value));
+                        break;
+                    case "double":
+                    case "float":
+                    case "currency":
+                        pstmt.setDouble(1, Double.parseDouble(value));
+                        break;
+                    case "boolean":
+                        pstmt.setBoolean(1, Boolean.parseBoolean(value));
+                        break;
+                    case "date":
+                        pstmt.setDate(1, java.sql.Date.valueOf(value));
+                        break;
+                    default:
+                        pstmt.setString(1, value);
+                        break;
+                }
+                rs = pstmt.executeQuery();
+                Integer pkValue = null;
+                if (rs.next()) {
+                    pkValue = rs.getInt(1);
+                }
+                rs.close();
+                pstmt.close();
+
+                if (pkValue != null) {
+                    // Now delete using PK to ensure only one row
+                    sql = "DELETE FROM " + table + " WHERE " + primaryKeyField + " = ?";
+                    pstmt = conn.prepareStatement(sql);
+                    pstmt.setInt(1, pkValue);
+                    int rowsDeleted = pstmt.executeUpdate();
+                    System.out.println("Deleted " + rowsDeleted + " row(s) from " + table + " (PK=" + pkValue + ")");
+                } else {
+                    System.out.println("No matching row found to delete.");
+                }
+
+            } else {
+                // If no PK detected, fallback to DELETE TOP 1
+                sql = "DELETE FROM " + table + " WHERE " + column + " = ?";
+                pstmt = conn.prepareStatement(sql);
+
+                switch (dataType.toLowerCase()) {
+                    case "int":
+                    case "integer":
+                        pstmt.setInt(1, Integer.parseInt(value));
+                        break;
+                    case "double":
+                    case "float":
+                    case "currency":
+                        pstmt.setDouble(1, Double.parseDouble(value));
+                        break;
+                    case "boolean":
+                        pstmt.setBoolean(1, Boolean.parseBoolean(value));
+                        break;
+                    case "date":
+                        pstmt.setDate(1, java.sql.Date.valueOf(value));
+                        break;
+                    default:
+                        pstmt.setString(1, value);
+                        break;
+                }
+
+                int rowsDeleted = pstmt.executeUpdate();
+                System.out.println("Deleted " + rowsDeleted + " row(s) from " + table);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    public void deleteAllRowsFromDB(String table, String column, String value, String dataType) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            conn = DriverManager.getConnection(url);
+
+            String sql = "DELETE FROM " + table + " WHERE " + column + " = ?";
+            pstmt = conn.prepareStatement(sql);
+
+            // Bind value based on dataType
+            switch (dataType.toLowerCase()) {
+                case "int":
+                case "integer":
+                    pstmt.setInt(1, Integer.parseInt(value));
+                    break;
+                case "double":
+                case "float":
+                case "currency":
+                    pstmt.setDouble(1, Double.parseDouble(value));
+                    break;
+                case "boolean":
+                    pstmt.setBoolean(1, Boolean.parseBoolean(value));
+                    break;
+                case "date":
+                    pstmt.setDate(1, java.sql.Date.valueOf(value)); // Format: yyyy-MM-dd
+                    break;
+                default:
+                    pstmt.setString(1, value);
+                    break;
+            }
+
+            int rowsDeleted = pstmt.executeUpdate();
+            System.out.println("Deleted " + rowsDeleted + " row(s) from " + table + " where " + column + " = " + value);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+    
+    public void clearDBKeepFirstRow(String table) {
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+    ResultSet rs = null;
+
+    try {
+        conn = DriverManager.getConnection(url);
+
+        // 1️⃣ Detect primary key column
+        String primaryKeyField = null;
+        java.sql.DatabaseMetaData dbMeta = conn.getMetaData();
+        rs = dbMeta.getPrimaryKeys(null, null, table);
+        if (rs.next()) {
+            primaryKeyField = rs.getString("COLUMN_NAME");
+        }
+        rs.close();
+
+        if (primaryKeyField == null) {
+            throw new RuntimeException("Could not detect primary key column for table " + table);
+        }
+
+        // 2️⃣ Get the first row’s primary key value (lowest)
+        String firstPkSql = "SELECT MIN(" + primaryKeyField + ") FROM " + table;
+        pstmt = conn.prepareStatement(firstPkSql);
+        rs = pstmt.executeQuery();
+        Integer firstPkValue = null;
+        if (rs.next()) {
+            firstPkValue = rs.getInt(1);
+        }
+        rs.close();
+        pstmt.close();
+
+        if (firstPkValue == null) {
+            System.out.println("Table " + table + " is empty. Nothing to delete.");
+            return;
+        }
+
+        // 3️⃣ Delete all rows except that PK
+        String deleteSql = "DELETE FROM " + table + " WHERE " + primaryKeyField + " <> ?";
+        pstmt = conn.prepareStatement(deleteSql);
+        pstmt.setInt(1, firstPkValue);
+        int rowsDeleted = pstmt.executeUpdate();
+
+        System.out.println("Deleted " + rowsDeleted + " row(s) from " + table + ", kept PK=" + firstPkValue);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            if (rs != null) rs.close();
+            if (pstmt != null) pstmt.close();
+            if (conn != null) conn.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+
+    
+    
+    public void replaceItemInRow(String table,
+                             String indexField,
+                             String indexValue,
+                             String replaceField,
+                             String replaceValue,
+                             String fieldType) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            conn = DriverManager.getConnection(url);
+
+            // Build SQL: UPDATE table SET replaceField=? WHERE indexField=?
+            String sql = "UPDATE " + table + " SET " + replaceField + " = ? WHERE " + indexField + " = ?";
+            pstmt = conn.prepareStatement(sql);
+
+            // 1️⃣ Bind the new value (replaceValue) for replaceField — always treat as String, unless you also pass its datatype
+            pstmt.setString(1, replaceValue);
+
+            // 2️⃣ Bind the indexValue for WHERE clause, using fieldType
+            switch (fieldType.toLowerCase()) {
+                case "int":
+                case "integer":
+                    pstmt.setInt(2, Integer.parseInt(indexValue));
+                    break;
+                case "double":
+                case "float":
+                case "currency":
+                    pstmt.setDouble(2, Double.parseDouble(indexValue));
+                    break;
+                case "boolean":
+                    pstmt.setBoolean(2, Boolean.parseBoolean(indexValue));
+                    break;
+                case "date":
+                    pstmt.setDate(2, java.sql.Date.valueOf(indexValue)); // yyyy-MM-dd
+                    break;
+                default:
+                    pstmt.setString(2, indexValue);
+                    break;
+            }
+
+            int rowsUpdated = pstmt.executeUpdate();
+            System.out.println("Updated " + rowsUpdated + " row(s) in " + table +
+                               " — set " + replaceField + "='" + replaceValue +
+                               "' where " + indexField + "=" + indexValue);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+
+
+
+
+    public void printAllRowsOrdered(String table) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
             conn = DriverManager.getConnection(url);
 
-            // Step 1: Select the first matching row
-            String selectSQL = "SELECT * FROM " + table + " WHERE " + field + " = ?";
-            selectStmt = conn.prepareStatement(selectSQL);
+            // Detect primary key column
+            String primaryKeyField = null;
+            java.sql.DatabaseMetaData dbMeta = conn.getMetaData();
+            rs = dbMeta.getPrimaryKeys(null, null, table);
+            if (rs.next()) {
+                primaryKeyField = rs.getString("COLUMN_NAME");
+            }
+            rs.close();
 
-            switch (fieldType.toLowerCase()) {
-                case "int":
-                case "integer":
-                    selectStmt.setInt(1, Integer.parseInt(value));
-                    break;
-                case "double":
-                case "float":
-                case "currency":
-                    selectStmt.setDouble(1, Double.parseDouble(value));
-                    break;
-                case "boolean":
-                    selectStmt.setBoolean(1, Boolean.parseBoolean(value));
-                    break;
-                case "date":
-                    selectStmt.setDate(1, java.sql.Date.valueOf(value));
-                    break;
-                default:
-                    selectStmt.setString(1, value);
-                    break;
+            // Build SQL with ORDER BY primary key if found
+            String sql = "SELECT * FROM " + table;
+            if (primaryKeyField != null) {
+                sql += " ORDER BY " + primaryKeyField;
             }
 
-            rs = selectStmt.executeQuery();
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
 
-            if (rs.next()) {
-                // Assume first column is the primary key
-                ResultSetMetaData meta = rs.getMetaData();
-                String primaryKeyField = meta.getColumnName(1);
-                String primaryKeyValue = rs.getString(1);
+            ResultSetMetaData meta = rs.getMetaData();
+            int columnCount = meta.getColumnCount();
 
-                // Step 2: Delete using primary key
-                String deleteSQL = "DELETE FROM " + table + " WHERE " + primaryKeyField + " = ?";
-                deleteStmt = conn.prepareStatement(deleteSQL);
-                deleteStmt.setString(1, primaryKeyValue);
+            // Print column headers
+            for (int i = 1; i <= columnCount; i++) {
+                System.out.print(meta.getColumnName(i) + "\t");
+            }
+            System.out.println();
+            System.out.println("--------------------------------------------------");
 
-                int rowsDeleted = deleteStmt.executeUpdate();
-                System.out.println("Deleted " + rowsDeleted + " row(s) from " + table);
-            } else {
-                System.out.println("No matching row found to delete.");
+            // Print each row
+            while (rs.next()) {
+                for (int i = 1; i <= columnCount; i++) {
+                    System.out.print(rs.getString(i) + "\t");
+                }
+                System.out.println();
             }
 
         } catch (Exception e) {
@@ -279,13 +655,14 @@ public class DBManager {
         } finally {
             try {
                 if (rs != null) rs.close();
-                if (selectStmt != null) selectStmt.close();
-                if (deleteStmt != null) deleteStmt.close();
+                if (pstmt != null) pstmt.close();
                 if (conn != null) conn.close();
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
     }
+
+
 
 }

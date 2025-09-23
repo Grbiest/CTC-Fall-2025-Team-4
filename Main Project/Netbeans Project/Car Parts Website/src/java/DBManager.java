@@ -35,26 +35,41 @@ public class DBManager {
             pstmt = conn.prepareStatement(sql);
 
             // Set value based on fieldType
-            switch (fieldType.toLowerCase()) {
-                case "int":
-                case "integer":
-                    pstmt.setInt(1, Integer.parseInt(value));
-                    break;
-                case "double":
-                case "float":
-                case "currency":
-                    pstmt.setDouble(1, Double.parseDouble(value));
-                    break;
-                case "boolean":
-                    pstmt.setBoolean(1, Boolean.parseBoolean(value));
-                    break;
-                case "date":
-                    pstmt.setDate(1, java.sql.Date.valueOf(value)); // Format: yyyy-MM-dd
-                    break;
-                default:
-                    pstmt.setString(1, value);
-                    break;
-            }
+        switch (fieldType.toLowerCase()) {
+            case "int":
+            case "integer":
+                pstmt.setInt(1, Integer.parseInt(value));
+                break;
+
+            case "long":
+            case "long number": // new case
+                pstmt.setLong(1, Long.parseLong(value));
+                break;
+
+            case "double":
+            case "float":
+            case "currency":
+                pstmt.setDouble(1, Double.parseDouble(value));
+                break;
+
+            case "boolean":
+                pstmt.setBoolean(1, Boolean.parseBoolean(value));
+                break;
+
+            case "yes/no": // new case
+                // Interpret "Yes" or "No" as boolean true/false
+                boolean boolValue = value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("true");
+                pstmt.setBoolean(1, boolValue);
+                break;
+
+            case "date":
+                pstmt.setDate(1, java.sql.Date.valueOf(value)); // Format: yyyy-MM-dd
+                break;
+
+            default:
+                pstmt.setString(1, value);
+                break;
+        }
 
             rs = pstmt.executeQuery();
 
@@ -103,17 +118,32 @@ public class DBManager {
             case "integer":
                 pstmt.setInt(1, Integer.parseInt(value));
                 break;
+
+            case "long":
+            case "long number": // new case
+                pstmt.setLong(1, Long.parseLong(value));
+                break;
+
             case "double":
             case "float":
             case "currency":
                 pstmt.setDouble(1, Double.parseDouble(value));
                 break;
+
             case "boolean":
                 pstmt.setBoolean(1, Boolean.parseBoolean(value));
                 break;
+
+            case "yes/no": // new case
+                // Interpret "Yes" or "No" as boolean true/false
+                boolean boolValue = value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("true");
+                pstmt.setBoolean(1, boolValue);
+                break;
+
             case "date":
                 pstmt.setDate(1, java.sql.Date.valueOf(value)); // Format: yyyy-MM-dd
                 break;
+
             default:
                 pstmt.setString(1, value);
                 break;
@@ -187,22 +217,38 @@ public class DBManager {
 
                 switch (type) {
                     case "int":
-                    case "integer":
-                        pstmt.setInt(i + 1, Integer.parseInt(value));
-                        break;
-                    case "double":
-                    case "float":
-                        pstmt.setDouble(i + 1, Double.parseDouble(value));
-                        break;
-                    case "boolean":
-                        pstmt.setBoolean(i + 1, Boolean.parseBoolean(value));
-                        break;
-                    case "date":
-                        pstmt.setDate(i + 1, java.sql.Date.valueOf(value)); // Format: yyyy-[m]m-[d]d
-                        break;
-                    default: // Treat as string
-                        pstmt.setString(i + 1, value);
-                        break;
+            case "integer":
+                pstmt.setInt(1, Integer.parseInt(value));
+                break;
+
+            case "long":
+            case "long number": // new case
+                pstmt.setLong(1, Long.parseLong(value));
+                break;
+
+            case "double":
+            case "float":
+            case "currency":
+                pstmt.setDouble(1, Double.parseDouble(value));
+                break;
+
+            case "boolean":
+                pstmt.setBoolean(1, Boolean.parseBoolean(value));
+                break;
+
+            case "yes/no": // new case
+                // Interpret "Yes" or "No" as boolean true/false
+                boolean boolValue = value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("true");
+                pstmt.setBoolean(1, boolValue);
+                break;
+
+            case "date":
+                pstmt.setDate(1, java.sql.Date.valueOf(value)); // Format: yyyy-MM-dd
+                break;
+
+            default:
+                pstmt.setString(1, value);
+                break;
                 }
             }
 
@@ -228,7 +274,9 @@ public class DBManager {
 
         try {
             if (fields.length != rowArray.length || fields.length != fieldTypes.length) {
-                System.out.println("Fields length:" + fields.length + " rowArray length:" + rowArray.length + " FieldTypes length:" + fieldTypes.length );
+                System.out.println("Fields length:" + fields.length + 
+                                   " rowArray length:" + rowArray.length + 
+                                   " FieldTypes length:" + fieldTypes.length );
                 throw new IllegalArgumentException("Fields, rowArray, and fieldTypes must have the same length (excluding PK).");
             }
 
@@ -290,34 +338,52 @@ public class DBManager {
             String sql = "INSERT INTO " + table + " (" + fieldList + ") VALUES (" + placeholders + ")";
             pstmt = conn.prepareStatement(sql);
 
-            // Step 5: Bind parameters
+            // Step 5: Bind parameters correctly
             for (int i = 0; i < allValues.length; i++) {
                 String value = allValues[i];
                 String type = allTypes[i].toLowerCase();
+                int paramIndex = i + 1; // <-- IMPORTANT FIX
+
                 switch (type) {
                     case "int":
                     case "integer":
-                        pstmt.setInt(i + 1, Integer.parseInt(value));
+                        pstmt.setInt(paramIndex, Integer.parseInt(value));
                         break;
+
+                    case "long":
+                    case "long number":
+                        pstmt.setLong(paramIndex, Long.parseLong(value));
+                        break;
+
                     case "double":
                     case "float":
                     case "currency":
-                        pstmt.setDouble(i + 1, Double.parseDouble(value));
+                        pstmt.setDouble(paramIndex, Double.parseDouble(value));
                         break;
+
                     case "boolean":
-                        pstmt.setBoolean(i + 1, Boolean.parseBoolean(value));
+                        pstmt.setBoolean(paramIndex, Boolean.parseBoolean(value));
                         break;
+
+                    case "yes/no":
+                        boolean boolValue = value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("true");
+                        pstmt.setBoolean(paramIndex, boolValue);
+                        break;
+
                     case "date":
-                        pstmt.setDate(i + 1, java.sql.Date.valueOf(value));
+                        pstmt.setDate(paramIndex, java.sql.Date.valueOf(value)); // Format: yyyy-MM-dd
                         break;
+
                     default:
-                        pstmt.setString(i + 1, value);
+                        pstmt.setString(paramIndex, value);
                         break;
                 }
             }
 
-            int rowsInserted = pstmt.executeUpdate();
-            System.out.println("Inserted " + rowsInserted + " row(s) into " + table + " (PK=" + nextPrimaryKey + ")");
+            // Step 6: Execute insert
+            pstmt.executeUpdate();
+
+            System.out.println("Record added to " + table + " successfully.");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -331,6 +397,7 @@ public class DBManager {
             }
         }
     }
+
     
     public void deleteFirstRowFromDB(String table, String column, String value, String dataType) {
         Connection conn = null;
@@ -357,21 +424,36 @@ public class DBManager {
                 String selectSql = "SELECT " + primaryKeyField + " FROM " + table + " WHERE " + column + " = ? ORDER BY " + primaryKeyField;
                 pstmt = conn.prepareStatement(selectSql);
                 switch (dataType.toLowerCase()) {
-                    case "int":
+                                        case "int":
                     case "integer":
                         pstmt.setInt(1, Integer.parseInt(value));
                         break;
+
+                    case "long":
+                    case "long number": // new case
+                        pstmt.setLong(1, Long.parseLong(value));
+                        break;
+
                     case "double":
                     case "float":
                     case "currency":
                         pstmt.setDouble(1, Double.parseDouble(value));
                         break;
+
                     case "boolean":
                         pstmt.setBoolean(1, Boolean.parseBoolean(value));
                         break;
+
+                    case "yes/no": // new case
+                        // Interpret "Yes" or "No" as boolean true/false
+                        boolean boolValue = value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("true");
+                        pstmt.setBoolean(1, boolValue);
+                    break;
+
                     case "date":
-                        pstmt.setDate(1, java.sql.Date.valueOf(value));
+                        pstmt.setDate(1, java.sql.Date.valueOf(value)); // Format: yyyy-MM-dd
                         break;
+
                     default:
                         pstmt.setString(1, value);
                         break;
@@ -401,21 +483,36 @@ public class DBManager {
                 pstmt = conn.prepareStatement(sql);
 
                 switch (dataType.toLowerCase()) {
-                    case "int":
+                                        case "int":
                     case "integer":
                         pstmt.setInt(1, Integer.parseInt(value));
                         break;
+
+                    case "long":
+                    case "long number": // new case
+                        pstmt.setLong(1, Long.parseLong(value));
+                        break;
+
                     case "double":
                     case "float":
                     case "currency":
                         pstmt.setDouble(1, Double.parseDouble(value));
                         break;
+
                     case "boolean":
                         pstmt.setBoolean(1, Boolean.parseBoolean(value));
                         break;
+
+                    case "yes/no": // new case
+                        // Interpret "Yes" or "No" as boolean true/false
+                        boolean boolValue = value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("true");
+                        pstmt.setBoolean(1, boolValue);
+                    break;
+
                     case "date":
-                        pstmt.setDate(1, java.sql.Date.valueOf(value));
+                        pstmt.setDate(1, java.sql.Date.valueOf(value)); // Format: yyyy-MM-dd
                         break;
+
                     default:
                         pstmt.setString(1, value);
                         break;
@@ -449,24 +546,39 @@ public class DBManager {
 
             // Bind value based on dataType
             switch (dataType.toLowerCase()) {
-                case "int":
-                case "integer":
-                    pstmt.setInt(1, Integer.parseInt(value));
+                                    case "int":
+                    case "integer":
+                        pstmt.setInt(1, Integer.parseInt(value));
+                        break;
+
+                    case "long":
+                    case "long number": // new case
+                        pstmt.setLong(1, Long.parseLong(value));
+                        break;
+
+                    case "double":
+                    case "float":
+                    case "currency":
+                        pstmt.setDouble(1, Double.parseDouble(value));
+                        break;
+
+                    case "boolean":
+                        pstmt.setBoolean(1, Boolean.parseBoolean(value));
+                        break;
+
+                    case "yes/no": // new case
+                        // Interpret "Yes" or "No" as boolean true/false
+                        boolean boolValue = value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("true");
+                        pstmt.setBoolean(1, boolValue);
                     break;
-                case "double":
-                case "float":
-                case "currency":
-                    pstmt.setDouble(1, Double.parseDouble(value));
-                    break;
-                case "boolean":
-                    pstmt.setBoolean(1, Boolean.parseBoolean(value));
-                    break;
-                case "date":
-                    pstmt.setDate(1, java.sql.Date.valueOf(value)); // Format: yyyy-MM-dd
-                    break;
-                default:
-                    pstmt.setString(1, value);
-                    break;
+
+                    case "date":
+                        pstmt.setDate(1, java.sql.Date.valueOf(value)); // Format: yyyy-MM-dd
+                        break;
+
+                    default:
+                        pstmt.setString(1, value);
+                        break;
             }
 
             int rowsDeleted = pstmt.executeUpdate();
@@ -556,32 +668,48 @@ public class DBManager {
         try {
             conn = DriverManager.getConnection(url);
 
-            // Build SQL: UPDATE table SET replaceField=? WHERE indexField=?
+            // Build SQL
             String sql = "UPDATE " + table + " SET " + replaceField + " = ? WHERE " + indexField + " = ?";
             pstmt = conn.prepareStatement(sql);
 
-            // 1️⃣ Bind the new value (replaceValue) for replaceField — always treat as String, unless you also pass its datatype
+            // 1️⃣ Bind the new value (first ?). 
+            // Currently always string; if you want typed, add another param for replaceFieldType
             pstmt.setString(1, replaceValue);
 
-            // 2️⃣ Bind the indexValue for WHERE clause, using fieldType
+            // 2️⃣ Bind the indexValue (second ?)
+            int paramIndex = 2; // <-- second placeholder
             switch (fieldType.toLowerCase()) {
                 case "int":
                 case "integer":
-                    pstmt.setInt(2, Integer.parseInt(indexValue));
+                    pstmt.setInt(paramIndex, Integer.parseInt(indexValue));
                     break;
+
+                case "long":
+                case "long number":
+                    pstmt.setLong(paramIndex, Long.parseLong(indexValue));
+                    break;
+
                 case "double":
                 case "float":
                 case "currency":
-                    pstmt.setDouble(2, Double.parseDouble(indexValue));
+                    pstmt.setDouble(paramIndex, Double.parseDouble(indexValue));
                     break;
+
                 case "boolean":
-                    pstmt.setBoolean(2, Boolean.parseBoolean(indexValue));
+                    pstmt.setBoolean(paramIndex, Boolean.parseBoolean(indexValue));
                     break;
+
+                case "yes/no":
+                    boolean boolValue = indexValue.equalsIgnoreCase("yes") || indexValue.equalsIgnoreCase("true");
+                    pstmt.setBoolean(paramIndex, boolValue);
+                    break;
+
                 case "date":
-                    pstmt.setDate(2, java.sql.Date.valueOf(indexValue)); // yyyy-MM-dd
+                    pstmt.setDate(paramIndex, java.sql.Date.valueOf(indexValue)); // Format: yyyy-MM-dd
                     break;
+
                 default:
-                    pstmt.setString(2, indexValue);
+                    pstmt.setString(paramIndex, indexValue);
                     break;
             }
 
@@ -601,9 +729,210 @@ public class DBManager {
             }
         }
     }
+    
+    public void replaceRow(String table,
+                       String indexField,
+                       String indexValue,
+                       String[] fields,
+                       String[] rows,
+                       String[] fieldTypes,
+                       String indexFieldType) {
 
+        Connection conn = null;
+        PreparedStatement pstmt = null;
 
+        try {
+            if (fields.length != rows.length || fields.length != fieldTypes.length) {
+                throw new IllegalArgumentException("Fields, rows, and fieldTypes must have the same length.");
+            }
 
+            conn = DriverManager.getConnection(url);
+
+            // 1️⃣ Build SQL dynamically
+            StringBuilder sql = new StringBuilder("UPDATE " + table + " SET ");
+            for (int i = 0; i < fields.length; i++) {
+                sql.append(fields[i]).append("=?");
+                if (i < fields.length - 1) {
+                    sql.append(", ");
+                }
+            }
+            sql.append(" WHERE ").append(indexField).append("=?");
+
+            pstmt = conn.prepareStatement(sql.toString());
+
+            // 2️⃣ Bind the new values for each field
+            for (int i = 0; i < rows.length; i++) {
+                String value = rows[i];
+                String type = fieldTypes[i].toLowerCase();
+                int paramIndex = i + 1;
+
+                switch (type) {
+                    case "int":
+                    case "integer":
+                        pstmt.setInt(paramIndex, Integer.parseInt(value));
+                        break;
+
+                    case "long":
+                    case "long number":
+                        pstmt.setLong(paramIndex, Long.parseLong(value));
+                        break;
+
+                    case "double":
+                    case "float":
+                    case "currency":
+                        pstmt.setDouble(paramIndex, Double.parseDouble(value));
+                        break;
+
+                    case "boolean":
+                        pstmt.setBoolean(paramIndex, Boolean.parseBoolean(value));
+                        break;
+
+                    case "yes/no":
+                        boolean boolValue = value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("true");
+                        pstmt.setBoolean(paramIndex, boolValue);
+                        break;
+
+                    case "date":
+                        pstmt.setDate(paramIndex, java.sql.Date.valueOf(value)); // Format: yyyy-MM-dd
+                        break;
+
+                    default:
+                        pstmt.setString(paramIndex, value);
+                        break;
+                }
+            }
+
+            // 3️⃣ Bind the indexValue for WHERE clause (last parameter)
+            int whereParamIndex = rows.length + 1;
+            switch (indexFieldType.toLowerCase()) {
+                case "int":
+                case "integer":
+                    pstmt.setInt(whereParamIndex, Integer.parseInt(indexValue));
+                    break;
+
+                case "long":
+                case "long number":
+                    pstmt.setLong(whereParamIndex, Long.parseLong(indexValue));
+                    break;
+
+                case "double":
+                case "float":
+                case "currency":
+                    pstmt.setDouble(whereParamIndex, Double.parseDouble(indexValue));
+                    break;
+
+                case "boolean":
+                    pstmt.setBoolean(whereParamIndex, Boolean.parseBoolean(indexValue));
+                    break;
+
+                case "yes/no":
+                    boolean boolValue = indexValue.equalsIgnoreCase("yes") || indexValue.equalsIgnoreCase("true");
+                    pstmt.setBoolean(whereParamIndex, boolValue);
+                    break;
+
+                case "date":
+                    pstmt.setDate(whereParamIndex, java.sql.Date.valueOf(indexValue)); // Format: yyyy-MM-dd
+                    break;
+
+                default:
+                    pstmt.setString(whereParamIndex, indexValue);
+                    break;
+            }
+
+            // 4️⃣ Execute update
+            int rowsUpdated = pstmt.executeUpdate();
+            System.out.println("Updated " + rowsUpdated + " row(s) in " + table +
+                               " — set multiple fields where " + indexField + "=" + indexValue);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    
+//    Table-specific commands:
+//    Each table will have a specific method to avoid having to enter in each parameter every time.
+//    To begin with, here are the different arrays to use in each method.
+    
+//    Inventory String[]s:
+    String[] inventoryFields = {"ProdName", "Description", "Price", "Category", "Quantity", "Link"};
+    String[] inventoryTypes = {"text", "text", "currency", "text", "int", "text"};
+    
+//    Carts String[]s:
+    String[] cartsFields = {"UserID", "ProdID", "ProdName", "Price", "Category", "Quantity"};
+    String[] cartsTypes = {"int", "int", "text", "currency", "text", "int"};
+    
+//    Users String[]s:
+    String[] usersFields = {"Login", "Password", "FirstName", "LastName", "Email", "PhoneNumber", "ShippingStreet", "ShippingCity", "ShippingState", "ShippingZip", "BillingStreet", "BillingCity", "BillingState", "BillingZip"};
+    String[] usersTypes = {"text", "text", "text", "text", "text", "long", "text", "text", "text", "int", "text", "text", "text", "int"};
+
+//    Orders String[]s:
+    String[] ordersFields = {"OrderID", "ProdID", "ProdName", "Category", "Quantity", "Fulfilled"};
+    String[] ordersTypes = {"int", "int", "text", "text", "int", "boolean"};
+    
+//   Inventory-specific methods
+    
+    public String[] selectFromInventory(String field, String value, String fieldType){
+        return this.selectFromDB("Inventory", field, value, fieldType);
+    }
+
+    public String[][] selectAllFromInventory(String field, String value, String fieldType){
+        return this.selectAllFromDB("Inventory", field, value, fieldType);
+    }
+
+    public void addNewItemToInventory(String[] inventoryRows) {
+        this.addNewItemFromArray("Inventory", inventoryFields, inventoryRows, inventoryTypes);
+    }
+    
+    public void updateItemInInventory(String indexField, String indexValue, String replaceField, String replaceValue) {
+        this.replaceItemInRow("Inventory", indexField, indexValue, replaceField, replaceValue, indexValue);
+    }
+    
+    public void replaceItemInInventory() {String indexField, String indexValue, }
+
+    public void deleteFirstItemFromInventory(String column, String value, String dataType) {
+        this.deleteFirstRowFromDB("Inventory", column, value, dataType);
+    }
+    
+    public void clearInventory() {
+        this.clearDBKeepFirstRow("Inventory");
+    }
+    
+//    Carts-specific methods:
+    
+    public String[] selectFromCarts(String field, String value, String fieldType){
+        return this.selectFromDB("Carts", field, value, fieldType);
+    }
+
+    public String[][] selectAllFromCarts(String field, String value, String fieldType){
+        return this.selectAllFromDB("Carts", field, value, fieldType);
+    }
+
+    public void addNewItemToCart(String[] cartRows) {
+        this.addNewItemFromArray("Carts", cartsFields, cartRows, cartsTypes);
+    }
+    
+    public void updateItemInCart(String indexField, String indexValue, String replaceField, String replaceValue) {
+        this.replaceItemInRow("Carts", indexField, indexValue, replaceField, replaceValue, indexValue);
+    }
+
+    public void deleteFirstItemFromCarts(String column, String value, String dataType) {
+        this.deleteFirstRowFromDB("Cart", column, value, dataType);
+    }
+    
+    public void clearCarts() {
+        this.clearDBKeepFirstRow("Cart");
+    }
+    
+    
+    
 
 
     public void printAllRowsOrdered(String table) {
@@ -661,6 +990,13 @@ public class DBManager {
                 ex.printStackTrace();
             }
         }
+    }
+    
+    public void printAllDBs() {
+        printAllRowsOrdered("Inventory");
+        printAllRowsOrdered("Carts");
+        printAllRowsOrdered("Users");
+        printAllRowsOrdered("Orders");
     }
 
 

@@ -734,7 +734,7 @@ public class DBManager {
                        String indexField,
                        String indexValue,
                        String[] fields,
-                       String[] rows,
+                       String[] row,
                        String[] fieldTypes,
                        String indexFieldType) {
 
@@ -742,7 +742,7 @@ public class DBManager {
         PreparedStatement pstmt = null;
 
         try {
-            if (fields.length != rows.length || fields.length != fieldTypes.length) {
+            if (fields.length != row.length || fields.length != fieldTypes.length) {
                 throw new IllegalArgumentException("Fields, rows, and fieldTypes must have the same length.");
             }
 
@@ -761,8 +761,8 @@ public class DBManager {
             pstmt = conn.prepareStatement(sql.toString());
 
             // 2️⃣ Bind the new values for each field
-            for (int i = 0; i < rows.length; i++) {
-                String value = rows[i];
+            for (int i = 0; i < row.length; i++) {
+                String value = row[i];
                 String type = fieldTypes[i].toLowerCase();
                 int paramIndex = i + 1;
 
@@ -803,7 +803,7 @@ public class DBManager {
             }
 
             // 3️⃣ Bind the indexValue for WHERE clause (last parameter)
-            int whereParamIndex = rows.length + 1;
+            int whereParamIndex = row.length + 1;
             switch (indexFieldType.toLowerCase()) {
                 case "int":
                 case "integer":
@@ -882,6 +882,10 @@ public class DBManager {
     public String[] selectFromInventory(String field, String value, String fieldType){
         return this.selectFromDB("Inventory", field, value, fieldType);
     }
+    
+    public String[] selectFromInventoryByProdID(String ProdID) {
+        return this.selectFromInventory("ProdID", ProdID, "int");
+    }
 
     public String[][] selectAllFromInventory(String field, String value, String fieldType){
         return this.selectAllFromDB("Inventory", field, value, fieldType);
@@ -895,7 +899,47 @@ public class DBManager {
         this.replaceItemInRow("Inventory", indexField, indexValue, replaceField, replaceValue, indexValue);
     }
     
-    public void replaceItemInInventory() {String indexField, String indexValue, }
+    public void updateItemInInventoryWithProdID(String ProdID, String replaceField, String replaceValue) {
+        this.updateItemInInventory("ProdID", ProdID, replaceField, replaceValue);
+    }
+    
+    public void changeQuantityOfItemInInventory(String ProdID, String replaceValue) {
+        this.updateItemInInventoryWithProdID(ProdID, "Quantity", replaceValue);
+    }
+    
+    public void addMoreOfItemToInventory(String ProdID) {
+        int quantity = Integer.parseInt(this.selectFromInventoryByProdID(ProdID)[5]);
+        quantity += 1;
+        this.changeQuantityOfItemInInventory(ProdID, Integer.toString(quantity));
+    }
+    
+    public void addXOfItemToInventory(String ProdID, int quantity) {
+        for (int i = 0; i < quantity; i++) {
+            this.addMoreOfItemToInventory(ProdID);
+        }
+    }
+    
+    public void subtractOneOfItemFromInventory(String ProdID) {
+        int quantity = Integer.parseInt(this.selectFromInventoryByProdID(ProdID)[5]);
+        if (quantity > 0) {
+            quantity -= 1;
+            this.changeQuantityOfItemInInventory(ProdID, Integer.toString(quantity));
+        }
+    }
+    
+    public void subtractXOfItemFromInventory(String ProdID, int quantity) {
+        for (int i = 0; i < quantity; i++) {
+            this.subtractOneOfItemFromInventory(ProdID);
+        }
+    }
+    
+    public void replaceItemInInventory(String indexField, String indexValue, String[] row, String indexType) {
+        this.replaceRow("Inventory", indexField, indexValue, this.inventoryFields, row, this.inventoryTypes, indexType);
+    }
+    
+    public void replaceItemInInventoryWithProdID(String ProdID, String[]row) {
+        this.replaceItemInInventory("ProdID", ProdID, row, "int");
+    }
 
     public void deleteFirstItemFromInventory(String column, String value, String dataType) {
         this.deleteFirstRowFromDB("Inventory", column, value, dataType);
@@ -910,6 +954,14 @@ public class DBManager {
     public String[] selectFromCarts(String field, String value, String fieldType){
         return this.selectFromDB("Carts", field, value, fieldType);
     }
+    
+    public String[][] selectCartFromUserID(String UserID) {
+        return this.selectAllFromCarts("UserID", UserID, "int");
+    }
+    
+    public String[] selectFromCartsByCartItemID(String CartItemID) {
+        return this.selectFromInventory("ProdID", CartItemID, "int");
+    }
 
     public String[][] selectAllFromCarts(String field, String value, String fieldType){
         return this.selectAllFromDB("Carts", field, value, fieldType);
@@ -923,6 +975,50 @@ public class DBManager {
         this.replaceItemInRow("Carts", indexField, indexValue, replaceField, replaceValue, indexValue);
     }
 
+    public void updateItemInCartWithCartItemID(String CartItemID, String replaceField, String replaceValue) {
+        this.updateItemInCart("CartItemID", CartItemID, replaceField, replaceValue);
+    }
+    
+    public void changeQuantityOfItemInCartItemID(String CartItemID, String replaceValue) {
+        this.updateItemInCartWithCartItemID(CartItemID, "Quantity", replaceValue);
+    }
+    
+    public void addMoreOfItemToCartItemID(String CartItemID) {
+        int quantity = Integer.parseInt(this.selectFromCartsByCartItemID(CartItemID)[5]);
+        quantity += 1;
+        this.changeQuantityOfItemInCartItemID(CartItemID, Integer.toString(quantity));
+    }
+    
+    public void addXOfItemToCartItemID(String CartItemID, int quantity) {
+        for (int i = 0; i < quantity; i++) {
+            this.addMoreOfItemToInventory(CartItemID);
+        }
+    }
+    
+    public void subtractOneOfItemFromCartItemID(String CartItemID) {
+        int quantity = Integer.parseInt(this.selectFromInventoryByProdID(CartItemID)[5]);
+        if (quantity > 0) {
+            quantity -= 1;
+            this.changeQuantityOfItemInInventory(CartItemID, Integer.toString(quantity));
+        }
+    }
+    
+    public void subtractXOfItemFromCartItemID(String ProdID, int quantity) {
+        for (int i = 0; i < quantity; i++) {
+            this.subtractOneOfItemFromInventory(ProdID);
+        }
+    }
+    
+    
+    
+    public void replaceItemInCart(String indexField, String indexValue, String[] row, String indexType) {
+        this.replaceRow("Carts", indexField, indexValue, this.cartsFields, row, this.cartsTypes, indexType);
+    }
+    
+    public void replaceItemInCartWithProdID(String ProdID, String[]row) {
+        this.replaceItemInCart("ProdID", ProdID, row, "int");
+    }
+    
     public void deleteFirstItemFromCarts(String column, String value, String dataType) {
         this.deleteFirstRowFromDB("Cart", column, value, dataType);
     }
@@ -931,66 +1027,117 @@ public class DBManager {
         this.clearDBKeepFirstRow("Cart");
     }
     
+//    Users-specific methods:
+    public String[] selectFromUsers(String field, String value, String fieldType){
+        return this.selectFromDB("Users", field, value, fieldType);
+    }
     
+    
+    public String[] selectFromUsersByUserID(String UserID) {
+        return this.selectFromUsers("UserID", UserID, "int");
+    }
+    
+    public String[] selectLoginAndPasswordByUserID(String UserID){
+        String[] returnArray = {this.selectFromUsersByUserID(UserID)[1],this.selectFromUsersByUserID(UserID)[2]};
+        return returnArray;
+    }
+
+    public String[][] selectAllFromUsers(String field, String value, String fieldType){
+        return this.selectAllFromDB("Users", field, value, fieldType);
+    }
+
+    public void addNewUser(String[] userRows) {
+        this.addNewItemFromArray("Users", usersFields, userRows, usersTypes);
+    }
+    
+    public void updateUser(String indexField, String indexValue, String replaceField, String replaceValue) {
+        this.replaceItemInRow("Users", indexField, indexValue, replaceField, replaceValue, indexValue);
+    }
+    
+    public void updateUserWithUserID(String UserID, String replaceField, String replaceValue) {
+        this.updateUser("UserID", UserID, replaceField, replaceValue);
+    }
+    
+    public void replaceUser(String indexField, String indexValue, String[] row, String indexType) {
+        this.replaceRow("Users", indexField, indexValue, this.inventoryFields, row, this.inventoryTypes, indexType);
+    }
+    
+    public void replaceUserWithUserWithUserID(String UserID, String[]row) {
+        this.replaceUser("UserID", UserID, row, "int");
+    }
+
+    public void deleteFirstUser(String column, String value, String dataType) {
+        this.deleteFirstRowFromDB("User", column, value, dataType);
+    }
+    
+    public void clearUsers() {
+        this.clearDBKeepFirstRow("Users");
+    }
+    
+//    Orders-specific methods:
     
 
 
     public void printAllRowsOrdered(String table) {
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+    ResultSet rs = null;
 
-        try {
-            conn = DriverManager.getConnection(url);
+    try {
+        conn = DriverManager.getConnection(url);
 
-            // Detect primary key column
-            String primaryKeyField = null;
-            java.sql.DatabaseMetaData dbMeta = conn.getMetaData();
-            rs = dbMeta.getPrimaryKeys(null, null, table);
-            if (rs.next()) {
-                primaryKeyField = rs.getString("COLUMN_NAME");
-            }
-            rs.close();
+        // Detect primary key column
+        String primaryKeyField = null;
+        java.sql.DatabaseMetaData dbMeta = conn.getMetaData();
+        rs = dbMeta.getPrimaryKeys(null, null, table);
+        if (rs.next()) {
+            primaryKeyField = rs.getString("COLUMN_NAME");
+        }
+        rs.close();
 
-            // Build SQL with ORDER BY primary key if found
-            String sql = "SELECT * FROM " + table;
-            if (primaryKeyField != null) {
-                sql += " ORDER BY " + primaryKeyField;
-            }
+        // Build SQL with ORDER BY primary key if found
+        String sql = "SELECT * FROM " + table;
+        if (primaryKeyField != null) {
+            sql += " ORDER BY " + primaryKeyField;
+        }
 
-            pstmt = conn.prepareStatement(sql);
-            rs = pstmt.executeQuery();
+        pstmt = conn.prepareStatement(sql);
+        rs = pstmt.executeQuery();
 
-            ResultSetMetaData meta = rs.getMetaData();
-            int columnCount = meta.getColumnCount();
+        ResultSetMetaData meta = rs.getMetaData();
+        int columnCount = meta.getColumnCount();
 
-            // Print column headers
+        // ✅ Print the table name first
+        System.out.println("\n=== Table: " + table + " ===");
+
+        // Print column headers
+        for (int i = 1; i <= columnCount; i++) {
+            System.out.print(meta.getColumnName(i) + "\t");
+        }
+        System.out.println();
+        System.out.println("--------------------------------------------------");
+
+        // Print each row
+        while (rs.next()) {
             for (int i = 1; i <= columnCount; i++) {
-                System.out.print(meta.getColumnName(i) + "\t");
+                System.out.print(rs.getString(i) + "\t");
             }
             System.out.println();
-            System.out.println("--------------------------------------------------");
+        }
 
-            // Print each row
-            while (rs.next()) {
-                for (int i = 1; i <= columnCount; i++) {
-                    System.out.print(rs.getString(i) + "\t");
-                }
-                System.out.println();
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (pstmt != null) pstmt.close();
-                if (conn != null) conn.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            if (rs != null) rs.close();
+            if (pstmt != null) pstmt.close();
+            if (conn != null) conn.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
+}
+
     
     public void printAllDBs() {
         printAllRowsOrdered("Inventory");

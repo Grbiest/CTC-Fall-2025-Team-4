@@ -7,10 +7,10 @@ public class Test {
 //        dbm.deleteAllRowsFromDB("Users", "Login", "JohnSmith", "text");
 //        dbm.clearDBKeepFirstRow("Users");
 
-//        String table = "Inventory";
-//        String[] fields = {"ProdName", "Description", "Price", "Category", "Quantity", "Link"};
-//        String[] rows = {"Michelin Tires", "Michelin tires will tire you out", "100.00", "Tires", "3", "..."};
-//        String[] types = {"text", "text", "currency", "text", "int", "text"};
+        String table = "Inventory";
+        String[] fields = {"ProdName", "Description", "Price", "Category", "Quantity", "Link"};
+        String[] rows = {"Michelin Tires", "Michelin tires will tire you out", "100.00", "Tires", "3", "..."};
+        String[] types = {"text", "text", "currency", "text", "int", "text"};
 //
 //        String table = "Carts";
 //        String[] fields = {"UserID", "ProdID", "ProdName", "Price", "Category", "Quantity"};
@@ -32,7 +32,8 @@ public class Test {
 
 //        dbm.replaceItemInRow("Users", "UserID", "10001", "ShippingZip", "1111111", "int");
 //        dbm.deleteAllRowsFromDB("Users", "PhoneNumber", "5555555", "int");
-        
+
+
 
         dbm.printAllDBs();
 //        String[] result = dbm.selectFromDB("Inventory", "ProdID", "10001", "integer");

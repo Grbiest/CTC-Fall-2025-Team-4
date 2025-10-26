@@ -32,7 +32,9 @@
       height: 214px;
       background: url("https://placehold.co/423x214") no-repeat center;
       background-size: contain;
+      display: block; /* ensure the <a> tag behaves like a block for width/height */
     }
+
 
     .search-bar {
       display: flex;
@@ -40,9 +42,12 @@
       border: 1px solid #000;
       height: 77px;
       width: 514px;
-      justify-content: center;
+      justify-content: space-between;
       font-size: 24px;
+      padding: 0 10px;
+      box-sizing: border-box;
     }
+
 
     .nav-links {
       display: flex;
@@ -102,19 +107,61 @@
       font-size: 20px;
       cursor: pointer;
     }
+    
+    .nav-btn {
+        background: none;
+        border: none;
+        font-size: 22px;
+        cursor: pointer;
+        color: #000;
+        padding: 0;
+        margin: 0 5px; /* spacing between items */
+        font-family: Roboto, sans-serif;
+      }
+
+      .nav-btn:hover {
+        text-decoration: underline;
+      }
+
 
   </style>
 </head>
 <body>
-  <!-- HEADER -->
-  <header>
-    <div class="logo"></div>
-    <div class="search-bar">Search</div>
-    <div class="nav-links">
-      <div>Login</div>
-      <div>Sign up</div>
-      <div>Cart (0)</div>
-    </div>
+    <!-- HEADER -->
+    <header>
+        <form id="logoForm" action="loginCar" method="post" style="display: inline;">
+            <div class="logo" onclick="document.getElementById('logoForm').submit();"></div>
+        </form>
+
+
+
+        <form class="search-bar" action="SearchServlet" method="post">
+          <input type="text" name="query" placeholder="Search for products..." 
+                 style="flex: 1; font-size: 24px; padding: 10px; border: none; outline: none;">
+          <button type="submit" 
+                  style="font-size: 24px; padding: 10px 20px; border: none; background: #046A93; color: #fff; cursor: pointer;">
+            Search
+          </button>
+        </form>
+
+
+        <div class="nav-links">
+            <!-- Login Form -->
+            <form action="LoginFromGuestServlet" method="post" style="display: inline;">
+              <button type="submit" class="nav-btn">Login</button>
+            </form>
+
+            <!-- Sign Up Form -->
+            <form action="SignUpServlet" method="post" style="display: inline;">
+              <button type="submit" class="nav-btn">Sign Up</button>
+            </form>
+
+            <!-- Cart Form -->
+            <form action="CartServlet" method="post" style="display: inline;">
+              <button type="submit" class="nav-btn">Cart (0)</button>
+            </form>
+          </div>
+
   </header>
 
   <!-- HERO SECTION -->

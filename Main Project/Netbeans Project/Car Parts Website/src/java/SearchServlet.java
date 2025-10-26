@@ -3,7 +3,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -16,8 +15,8 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * @author Grant
  */
-@WebServlet(urlPatterns = {"/LoginServletCar"})
-public class LoginServletCar extends HttpServlet {
+@WebServlet(urlPatterns = {"/SearchServlet"})
+public class SearchServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -36,15 +35,12 @@ public class LoginServletCar extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet LoginServletCar</title>");
+            out.println("<title>Servlet SearchServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet LoginServletCar at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet SearchServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
-            System.out.println("Going to ProductsPage");
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/OrderInterface.jsp");
-            dispatcher.forward(request, response);
         }
     }
 

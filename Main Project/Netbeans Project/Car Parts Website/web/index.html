@@ -118,37 +118,38 @@
 </head>
 <body>
   <div class="container">
-    <div class="card" role="main" aria-label="Login card">
-      <h1 class="title">Welcome</h1>
+  <div class="card" role="main" aria-label="Login card">
+    <h1 class="title">Welcome</h1>
 
-      <div class="button-row">
-        <button class="login-btn customer" onclick="alert('Customer Login Clicked')">
-          Customer<br />Login
-        </button>
-        <button class="login-btn employee" onclick="alert('Employee Login Clicked')">
-          Employee<br />Login
-        </button>
-      </div>
+    <div class="button-row">
+      <button class="login-btn customer" onclick="alert('Customer Login Clicked')">
+        Customer<br />Login aswdfasd fasdg asdfg
+      </button>
 
-      <div class="input-label">Username</div>
-        <input type="text" placeholder="Enter Username" />
+      <form action="LoginServletCar" method="post" style="display:inline;">
+         <button type="submit" class="login-btn employee">Employee<br />Login</button>
+    </form>
 
-
-
-      <div class="label-row">
-        <div style="font-size:22px">Password</div>
-        <a href="#">Forgot?</a>
-      </div>
-
-      <input type="password" placeholder="Enter Password" />
-
-      <table>
-        <tr><td>Not a member?</td></tr>
-        <tr><td><a href="#">Sign up now</a></td></tr>
-        <tr><td>or</td></tr>
-        <tr><td><a href="#">Continue as Guest</a></td></tr>
-      </table>
     </div>
+
+    <div class="input-label">Username</div>
+    <input type="text" placeholder="Enter Username" />
+
+    <div class="label-row">
+      <div style="font-size:22px">Password</div>
+      <a href="#">Forgot?</a>
+    </div>
+
+    <input type="password" placeholder="Enter Password" />
+
+    <table>
+      <tr><td>Not a member?</td></tr>
+      <tr><td><a href="#">Sign up now</a></td></tr>
+      <tr><td>or</td></tr>
+      <tr><td><a href="#">Continue as Guest</a></td></tr>
+    </table>
   </div>
+</div>
+
 </body>
 </html>

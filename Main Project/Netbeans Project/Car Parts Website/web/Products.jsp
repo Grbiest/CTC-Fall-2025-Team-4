@@ -1,3 +1,10 @@
+<%-- 
+    Document   : Products
+    Created on : Oct 26, 2025, 2:02:52 PM
+    Author     : Grant
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>

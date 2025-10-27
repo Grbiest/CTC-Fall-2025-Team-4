@@ -2,7 +2,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.mycompany.teamproject;
 
 /**
  *
@@ -17,6 +16,8 @@ public class User {
     private String password;
     private String firstName;
     private String lastName;
+    private String role;
+    private DBManager dbm = new DBManager();
 
     public User() {
         this.userId = "";
@@ -24,6 +25,7 @@ public class User {
         this.password = "";
         this.firstName = "";
         this.lastName = "";
+        this.role = "";
     }
 
     public User(String userId, String username, String password, String firstName, String lastName) {
@@ -32,6 +34,26 @@ public class User {
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
+    }
+    
+    public void setUserInfo(String userId, String username, String password,
+                            String firstName, String lastName, String role) {
+        this.userId = userId;
+        this.username = username;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.role = role;
+    }
+    
+
+    public String determineUserTypeByUserID(String uID) {
+        String[] userArr = dbm.selectFromUsersByUserID(uID);
+        if (userArr[7].equals("OPP")) {
+            return "OrderProcessingPerson";
+        }
+        else
+            return "Customer";
     }
 
     // Getters and setters
@@ -73,5 +95,28 @@ public class User {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+    
+    public String getRole() {
+        return this.role;
+    }
+    
+    public void setRole(String role) {
+        this.role = role;
+    }
+    
+    public DBManager getDbm() {
+        return this.dbm;
+    }
+    
+    public void displayUserInfo() {
+        System.out.println("=== User Information ===");
+        System.out.println("User ID:    " + userId);
+        System.out.println("Username:   " + username);
+        System.out.println("Password:   " + password);
+        System.out.println("First Name: " + firstName);
+        System.out.println("Last Name:  " + lastName);
+        System.out.println("Role:       " + role);
+        System.out.println("========================");
     }
 }

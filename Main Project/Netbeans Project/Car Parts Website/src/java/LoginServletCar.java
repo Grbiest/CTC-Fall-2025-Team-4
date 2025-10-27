@@ -11,6 +11,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 /**
  *
@@ -42,9 +43,46 @@ public class LoginServletCar extends HttpServlet {
             out.println("<h1>Servlet LoginServletCar at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
-            System.out.println("Going to ProductsPage");
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/OrderInterface.jsp");
-            dispatcher.forward(request, response);
+            
+            String un, pw;
+            un = request.getParameter("uname");
+            pw = request.getParameter("pword");
+            System.out.println(un + " " + pw);
+            
+            DBManager dbm = new DBManager();
+            if (dbm.testLogin(un, pw)) {
+                String[] userArr = dbm.selectUserFromLogin(un);
+                if (userArr[7].equals("OPP")){
+                    
+                    OrderProcessingPerson opp1 = new OrderProcessingPerson();
+                    opp1.setOrderProcessingPersonInfoFromArray(userArr);
+                    HttpSession ses1;
+                    ses1 = request.getSession();
+                    ses1.setAttribute("opp1", opp1);
+                    
+                    System.out.println("Going to OrderInterface as OrderProcessingPerson");
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("/OrderInterface.jsp");
+                    dispatcher.forward(request, response);
+                } else {
+                    Customer cust1 = new Customer();
+                    cust1.setCustomerInfoFromArray(userArr);
+                    HttpSession ses1;
+                    ses1 = request.getSession();
+                    ses1.setAttribute("cust1", cust1);
+                    
+                    System.out.println("Going to ProductsPage as Customer");
+                }
+            }
+            
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Error</title>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Username and/or password not accepted. Go back.</h1>");
+            out.println("</body>");
+            out.println("</html>");
         }
     }
 

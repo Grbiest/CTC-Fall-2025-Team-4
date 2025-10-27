@@ -5,42 +5,37 @@
   <title>Login Page</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    /* Reset + robust box-sizing */
     *, *::before, *::after { box-sizing: border-box; }
 
-    /* Ensure no default margins */
     html, body {
       height: 100%;
-      background-color: #046A93;     /* page background color */
-      overflow: hidden
+      background-color: #046A93;
+      overflow: hidden;
     }
 
-    /* Put the layout container locked to the viewport */
     .container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #046A93 url("https://placehold.co/482x271") no-repeat left top;
-        background-size: 482px 271px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transform: translateZ(0);   /* forces Chrome to render on its own layer */
-      }
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #046A93 url("https://placehold.co/482x271") no-repeat left top;
+      background-size: 482px 271px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translateZ(0);
+    }
 
-
-    /* Card styling — make sure it never overflows viewport */
     .card {
       width: 700px;
-      max-width: calc(100% - 40px);  /* safe margin on tiny screens */
+      max-width: calc(100% - 40px);
       background: #ffffff;
       border-radius: 10px;
       padding: 60px 40px;
       box-shadow: 0 6px 18px rgba(0,0,0,0.08);
       text-align: center;
-      overflow: visible; /* ensure internal content doesn't force page scrollbar */
+      overflow: visible;
     }
 
     .title {
@@ -51,31 +46,22 @@
       font-family: Roboto, Arial, sans-serif;
     }
 
-    .button-row {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-bottom: 30px;
-      flex-wrap: wrap; /* wrap on small screens */
-    }
-
     .login-btn {
-      width: 255px;
+      width: 100%; /* full width to match inputs */
       height: 81px;
       border: none;
-      border-radius: 8px;
+      border-radius: 7px;
       font-size: 28px;
       font-weight: 500;
       cursor: pointer;
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
       line-height: 32px;
+      background: #C20E0E; /* red */
+      color: #000; /* black text */
+      margin-top: 20px;
     }
-
-    .customer { background: #C20E0E; color: #000; }
-    .employee { background: #D9D9D9; color: gray; }
 
     input[type="text"], input[type="password"] {
       width: 100%;
@@ -98,17 +84,16 @@
       font-size: 22px;
       color: #000;
     }
-    
-    .input-label {
-        font-size: 22px;
-        color: #000;
-        text-align: left;
-        margin-bottom: 8px;
-        width: 100%;
-        display: block;
-        padding-left: 2px; /* slight nudge to align with input padding */
-      }
 
+    .input-label {
+      font-size: 22px;
+      color: #000;
+      text-align: left;
+      margin-bottom: 8px;
+      width: 100%;
+      display: block;
+      padding-left: 2px;
+    }
 
     a { color: #6A6A6A; font-size: 17px; text-decoration: underline; }
 
@@ -118,38 +103,30 @@
 </head>
 <body>
   <div class="container">
-  <div class="card" role="main" aria-label="Login card">
-    <h1 class="title">Welcome</h1>
+    <div class="card" role="main" aria-label="Login card">
+      <h1 class="title">Welcome</h1>
+      <form action="LoginServletCar" method="post">
+        <div class="input-label">Username</div>
+        <input type="text" placeholder="Enter Username" name="uname"/>
 
-    <div class="button-row">
-      <button class="login-btn customer" onclick="alert('Customer Login Clicked')">
-        Customer<br />Login 
-      </button>
+        <div class="label-row">
+          <div style="font-size:22px">Password</div>
+          <a href="#">Forgot?</a>
+        </div>
 
-      <form action="LoginServletCar" method="post" style="display:inline;">
-         <button type="submit" class="login-btn employee">Employee<br />Login</button>
-    </form>
+        <input type="password" placeholder="Enter Password" name="pword"/>
 
+
+        <button type="submit" class="login-btn">Login</button>
+      </form>
+
+      <table>
+        <tr><td>Not a member?</td></tr>
+        <tr><td><a href="#">Sign up now</a></td></tr>
+        <tr><td>or</td></tr>
+        <tr><td><a href="#">Continue as Guest</a></td></tr>
+      </table>
     </div>
-
-    <div class="input-label">Username</div>
-    <input type="text" placeholder="Enter Username" />
-
-    <div class="label-row">
-      <div style="font-size:22px">Password</div>
-      <a href="#">Forgot?</a>
-    </div>
-
-    <input type="password" placeholder="Enter Password" />
-
-    <table>
-      <tr><td>Not a member?</td></tr>
-      <tr><td><a href="#">Sign up now</a></td></tr>
-      <tr><td>or</td></tr>
-      <tr><td><a href="#">Continue as Guest</a></td></tr>
-    </table>
   </div>
-</div>
-
 </body>
 </html>

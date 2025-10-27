@@ -1041,6 +1041,22 @@ public class DBManager {
         String[] returnArray = {this.selectFromUsersByUserID(UserID)[1],this.selectFromUsersByUserID(UserID)[2]};
         return returnArray;
     }
+    
+    public String[] selectUserFromLogin(String Login) {
+        return this.selectFromUsers("Login", Login, "String");
+    }
+    
+    public boolean testLogin(String Login, String Password) {
+        try {
+            String[] testUser = this.selectUserFromLogin(Login);
+            if (testUser[1].equals(Login)&& testUser[2].equals(Password)){
+                return true;
+            }
+        } catch (Exception e) {
+            System.out.println("An error occurred: " + e.getMessage());
+       }
+        return false;
+    }
 
     public String[][] selectAllFromUsers(String field, String value, String fieldType){
         return this.selectAllFromDB("Users", field, value, fieldType);

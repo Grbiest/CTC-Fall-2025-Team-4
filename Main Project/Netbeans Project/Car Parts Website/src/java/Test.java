@@ -6,22 +6,23 @@ public class Test {
         
 //        dbm.deleteAllRowsFromDB("Users", "Login", "JohnSmith", "text");
 //        dbm.clearDBKeepFirstRow("Users");
-
-        String table = "Inventory";
-        String[] fields = {"ProdName", "Description", "Price", "Category", "Quantity", "Link"};
-        String[] rows = {"Michelin Tires", "Michelin tires will tire you out", "100.00", "Tires", "3", "..."};
-        String[] types = {"text", "text", "currency", "text", "int", "text"};
+//
+//        String table = "Inventory";
+//        String[] fields = {"ProdName", "Description", "Price", "Category", "Quantity", "Link"};
+//        String[] rows = {"Michelin Tires", "Michelin tires will tire you out", "100.00", "Tires", "3", "..."};
+//        String[] types = {"text", "text", "currency", "text", "int", "text"};
 //
 //        String table = "Carts";
 //        String[] fields = {"UserID", "ProdID", "ProdName", "Price", "Category", "Quantity"};
 //        String[] rows = {"10001", "10001", "Michelin Tires", "100.00", "Tires", "3"};
 //        String[] types = {"int", "int", "text", "currency", "text", "int"};
         
-//        String table = "Users";
-//        String[] fields = {"Login", "Password", "FirstName", "LastName", "Email", "PhoneNumber", "ShippingStreet", "ShippingCity", "ShippingState", "ShippingZip", "BillingStreet", "BillingCity", "BillingState", "BillingZip"};
+        String table = "Users";
+        String[] fields = {"Login", "Password", "FirstName", "LastName", "Email", "PhoneNumber", "ShippingStreet", "ShippingCity", "ShippingState", "ShippingZip", "BillingStreet", "BillingCity", "BillingState", "BillingZip"};
 //        String[] rows = {"JohnSmith", "12345", "John", "Smith", "jsmith@cars.com", "5555555", "123 Main St", "CityTown", "UT", "1234567", "123 Main St", "CityTown", "UT", "1234567"};
-//        String[] types = {"text", "text", "text", "text", "text", "long", "text", "text", "text", "int", "text", "text", "text", "int"};
-//        
+//        String[] rows = {"GeraldSmith", "12345", "Gerald", "Smith", "gsmith@cars.com", "0", "OPP", "OPP", "OPP", "0", "OPP", "OPP", "OPP", "0"};
+        String[] types = {"text", "text", "text", "text", "text", "long", "text", "text", "text", "int", "text", "text", "text", "int"};
+        
 //        String table = "Orders";
 //        String[] fields = {"OrderID", "ProdID", "ProdName", "Category", "Quantity", "Fulfilled"};
 //        String[] rows = {"10000", "10000", " ", " ", "0", "True"};
@@ -33,9 +34,20 @@ public class Test {
 //        dbm.replaceItemInRow("Users", "UserID", "10001", "ShippingZip", "1111111", "int");
 //        dbm.deleteAllRowsFromDB("Users", "PhoneNumber", "5555555", "int");
 
-
+//        Customer cust1 = new Customer();
+//        cust1.setCustomerInfoFromUserID("10001");
+//        cust1.displayCustomerInfo();
 
         dbm.printAllDBs();
+        User user1 = new User();
+
+        System.out.println(dbm.testLogin("JohnSmith", "12345"));
+        
+//        for (String value : jsmith) {
+//                    System.out.println("  " + value);
+//                }
+
+
 //        String[] result = dbm.selectFromDB("Inventory", "ProdID", "10001", "integer");
 //        String[] result = dbm.selectFromDB("Inventory", "Quantity", "3", "int");
 //        if (result != null) {
@@ -60,5 +72,6 @@ public class Test {
 //            System.out.println("No matching rows found.");
 //        }
 //    }
+        
     }
 }

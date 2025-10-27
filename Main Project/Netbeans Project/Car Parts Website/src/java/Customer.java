@@ -2,7 +2,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.mycompany.teamproject;
 
 /**
  *
@@ -34,7 +33,63 @@ public class Customer extends User {
         this.billingState = "";
         this.billingZip = "";
         //this.cart = new Cart();
+        this.setRole("customer");
     }
+    
+    public Customer(String userId, String username, String password,
+                String firstName, String lastName,
+                String email, String phoneNumber,
+                String shippingStreet, String shippingCity, String shippingState, String shippingZip,
+                String billingStreet, String billingCity, String billingState, String billingZip) {
+        super(userId, username, password, firstName, lastName);
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.shippingStreet = shippingStreet;
+        this.shippingCity = shippingCity;
+        this.shippingState = shippingState;
+        this.shippingZip = shippingZip;
+        this.billingStreet = billingStreet;
+        this.billingCity = billingCity;
+        this.billingState = billingState;
+        this.billingZip = billingZip;
+        this.setRole("customer");
+    }
+    
+    public void setCustomerInfo(String userId, String username, String password,
+                            String firstName, String lastName,
+                            String email, String phoneNumber,
+                            String shippingStreet, String shippingCity, String shippingState, String shippingZip,
+                            String billingStreet, String billingCity, String billingState, String billingZip) {
+        // Set inherited fields
+        this.setUserId(userId);
+        this.setUsername(username);
+        this.setPassword(password);
+        this.setFirstName(firstName);
+        this.setLastName(lastName);
+        this.setRole("customer"); // enforce role consistency
+
+        // Set customer-specific fields
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.shippingStreet = shippingStreet;
+        this.shippingCity = shippingCity;
+        this.shippingState = shippingState;
+        this.shippingZip = shippingZip;
+        this.billingStreet = billingStreet;
+        this.billingCity = billingCity;
+        this.billingState = billingState;
+        this.billingZip = billingZip;
+    }
+    
+    public void setCustomerInfoFromArray(String[] arr){
+        this.setCustomerInfo(arr[0], arr[1], arr[2], arr[3], arr[4], arr[5], arr[6], arr[7], arr[8], arr[9], arr[10], arr[11], arr[12], arr[13], arr[14]);
+    }
+    
+    public void setCustomerInfoFromUserID(String userID) {
+        this.setCustomerInfoFromArray(this.getDbm().selectFromUsersByUserID(userID));
+    }
+
+
 
     // Getters and Setters
     public String getEmail() {
@@ -116,12 +171,28 @@ public class Customer extends User {
     public void setBillingZip(String billingZip) {
         this.billingZip = billingZip;
     }
-
-    /*public Cart getCart() {
-        return cart;
+    
+        public void displayCustomerInfo() {
+        System.out.println("=== Customer Information ===");
+        System.out.println("User ID:        " + getUserId());
+        System.out.println("Username:       " + getUsername());
+        System.out.println("Password:       " + getPassword());
+        System.out.println("First Name:     " + getFirstName());
+        System.out.println("Last Name:      " + getLastName());
+        System.out.println("Role:           " + getRole());
+        System.out.println("Email:          " + email);
+        System.out.println("Phone Number:   " + phoneNumber);
+        System.out.println("--- Shipping Address ---");
+        System.out.println("Street:         " + shippingStreet);
+        System.out.println("City:           " + shippingCity);
+        System.out.println("State:          " + shippingState);
+        System.out.println("ZIP:            " + shippingZip);
+        System.out.println("--- Billing Address ---");
+        System.out.println("Street:         " + billingStreet);
+        System.out.println("City:           " + billingCity);
+        System.out.println("State:          " + billingState);
+        System.out.println("ZIP:            " + billingZip);
+        System.out.println("===========================");
     }
 
-    public void setCart(Cart cart) {
-        this.cart = cart;
-    }*/
 }

@@ -3,6 +3,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
+import DB_Objects.OrderProcessingPerson;
+import DB_Objects.Customer;
 import DB_Objects.DBManager;
 import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
@@ -51,7 +53,7 @@ public class LoginServletCar extends HttpServlet {
             System.out.println(un + " " + pw);
             
             DBManager dbm = new DBManager(getServletContext());
-            if (dbm.testLogin(un, pw)) {
+            if (!un.isEmpty() && dbm.testLogin(un, pw)) {
                 String[] userArr = dbm.selectUserFromLogin(un);
                 if (userArr[7].equals("OPP")){
                     
@@ -59,7 +61,7 @@ public class LoginServletCar extends HttpServlet {
                     opp1.setOrderProcessingPersonInfoFromArray(userArr);
                     HttpSession ses1;
                     ses1 = request.getSession();
-                    ses1.setAttribute("opp1", opp1);
+                    ses1.setAttribute("user", opp1);
                     
                     System.out.println("Going to OrderInterface as OrderProcessingPerson");
                     RequestDispatcher dispatcher = request.getRequestDispatcher("/OrderInterface.jsp");
@@ -69,7 +71,7 @@ public class LoginServletCar extends HttpServlet {
                     cust1.setCustomerInfoFromArray(userArr);
                     HttpSession ses1;
                     ses1 = request.getSession();
-                    ses1.setAttribute("cust1", cust1);
+                    ses1.setAttribute("user", cust1);
                     
                     System.out.println("Going to ProductsPage as Customer");
                     RequestDispatcher dispatcher = request.getRequestDispatcher("/ProductsPage.jsp");

@@ -115,6 +115,62 @@ public class DBManager {
         }
     }
     
+    public String[] selectLastFromDB(String table) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DriverManager.getConnection(url);
+
+            // Step 1: Get the first column name (usually AutoNumber / primary key)
+            String metaSql = "SELECT * FROM " + table;
+            pstmt = conn.prepareStatement(metaSql);
+            rs = pstmt.executeQuery();
+            ResultSetMetaData meta = rs.getMetaData();
+
+            if (meta.getColumnCount() == 0) {
+                return null; // Table has no columns
+            }
+
+            String keyColumn = meta.getColumnName(1); // assume first column is key
+            rs.close();
+            pstmt.close();
+
+            // Step 2: Select the last record based on that column
+            String sql = "SELECT TOP 1 * FROM " + table + " ORDER BY " + keyColumn + " DESC";
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            // Step 3: Return the last record as String[]
+            if (rs.next()) {
+                int columnCount = meta.getColumnCount();
+                String[] resultRow = new String[columnCount];
+
+                for (int i = 1; i <= columnCount; i++) {
+                    resultRow[i - 1] = rs.getString(i);
+                }
+
+                return resultRow;
+            } else {
+                return null;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    
     public String[][] selectAllFromDB(String table, String field, String value, String fieldType) {
     Connection conn = null;
     PreparedStatement pstmt = null;
@@ -547,6 +603,65 @@ public class DBManager {
             }
         }
     }
+    
+    public boolean deleteLastFromDB(String table) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DriverManager.getConnection(url);
+
+            // Step 1: Get the first column name (usually the key)
+            String getColSql = "SELECT * FROM " + table;
+            pstmt = conn.prepareStatement(getColSql);
+            rs = pstmt.executeQuery();
+            ResultSetMetaData meta = rs.getMetaData();
+
+            if (meta.getColumnCount() == 0) {
+                return false; // table empty or invalid
+            }
+
+            String keyColumn = meta.getColumnName(1); // assume first column is ID-like
+            rs.close();
+            pstmt.close();
+
+            // Step 2: Find the last record by ordering descending
+            String findLastSql = "SELECT TOP 1 " + keyColumn + " FROM " + table + " ORDER BY " + keyColumn + " DESC";
+            pstmt = conn.prepareStatement(findLastSql);
+            rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                String lastKeyValue = rs.getString(1);
+                rs.close();
+                pstmt.close();
+
+                // Step 3: Delete that record
+                String deleteSql = "DELETE FROM " + table + " WHERE " + keyColumn + " = ?";
+                pstmt = conn.prepareStatement(deleteSql);
+                pstmt.setString(1, lastKeyValue);
+
+                int rowsAffected = pstmt.executeUpdate();
+                return rowsAffected > 0;
+            } else {
+                return false;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+
 
     public void deleteAllRowsFromDB(String table, String column, String value, String dataType) {
         Connection conn = null;
@@ -1060,6 +1175,10 @@ public class DBManager {
         return this.selectFromUsers("Login", Login, "String");
     }
     
+    public String[] selectUserFromID(String UserID) {
+        return this.selectFromUsers("UserID", UserID, "String");
+    }
+    
     public boolean testLogin(String Login, String Password) {
         try {
             String[] testUser = this.selectUserFromLogin(Login);
@@ -1080,6 +1199,12 @@ public class DBManager {
         this.addNewItemFromArray("Users", usersFields, userRows, usersTypes);
     }
     
+    public String addGuest() {
+        String[] guestRows = {"", "", "", "", "", "0", "GUEST", "GUEST", "GUEST", "0", "GUEST", "GUEST", "GUEST", "0"};
+        this.addNewUser(guestRows);
+        return this.selectLastFromDB("Users")[0];
+    }
+    
     public void updateUser(String indexField, String indexValue, String replaceField, String replaceValue) {
         this.replaceItemInRow("Users", indexField, indexValue, replaceField, replaceValue, indexValue);
     }
@@ -1097,7 +1222,15 @@ public class DBManager {
     }
 
     public void deleteFirstUser(String column, String value, String dataType) {
-        this.deleteFirstRowFromDB("User", column, value, dataType);
+        this.deleteFirstRowFromDB("Users", column, value, dataType);
+    }
+    
+    public void deleteFirstUserWithUserID(String UserID) {
+        this.deleteFirstUser("UserID", UserID, "int");
+    }
+    
+    public void deleteLastUser() {
+        this.deleteLastFromDB("Users");
     }
     
     public void clearUsers() {

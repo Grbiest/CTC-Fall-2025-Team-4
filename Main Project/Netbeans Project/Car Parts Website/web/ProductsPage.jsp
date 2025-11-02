@@ -127,6 +127,21 @@
   </style>
 </head>
 <body>
+    <%
+    DB_Objects.User user = (DB_Objects.User) session.getAttribute("user");
+
+    if (user != null) {
+        if (user instanceof DB_Objects.Customer) {
+            out.println("Welcome, valued customer " + user.getUsername() + "!");
+        } else if (user instanceof DB_Objects.Guest) {
+            out.println("Welcome, guest!");
+        } else {
+            out.println("Unknown user type.");
+        }
+    } else {
+        out.println("No user in session.");
+    }
+%>
     <!-- HEADER -->
     <header>
         <form id="logoForm" action="loginCar" method="post" style="display: inline;">

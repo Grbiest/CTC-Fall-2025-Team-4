@@ -40,7 +40,10 @@ public class Test {
 //        Customer cust1 = new Customer();
 //        cust1.setCustomerInfoFromUserID("10001");
 //        cust1.displayCustomerInfo();
-
+        
+        
+//        System.out.println(dbm.addGuest());
+        dbm.deleteLastUser();
         dbm.printAllDBs();
         
         

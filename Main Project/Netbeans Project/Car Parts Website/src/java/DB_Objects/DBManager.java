@@ -1,13 +1,17 @@
+package DB_Objects;
+
+import jakarta.servlet.ServletContext;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.io.File;
+import java.util.Arrays;
 
 public class DBManager {
 
-    private static final String DB_RELATIVE_PATH = "db/CarDB.accdb";
+    private static final String DB_RELATIVE_PATH = "web/db/CarDB.accdb";
     private static final String DRIVER_CLASS = "net.ucanaccess.jdbc.UcanaccessDriver";
 
     private String url;
@@ -22,6 +26,16 @@ public class DBManager {
             e.printStackTrace();
         }
     }
+    
+    public DBManager(ServletContext context) {
+        try {
+            Class.forName(DRIVER_CLASS);
+            String dbPath = context.getRealPath("/db/CarDB.accdb");
+            url = "jdbc:ucanaccess://" + dbPath;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+}
     
     public String[] selectFromDB(String table, String field, String value, String fieldType) {
         Connection conn = null;
@@ -1020,11 +1034,11 @@ public class DBManager {
     }
     
     public void deleteFirstItemFromCarts(String column, String value, String dataType) {
-        this.deleteFirstRowFromDB("Cart", column, value, dataType);
+        this.deleteFirstRowFromDB("Carts", column, value, dataType);
     }
     
     public void clearCarts() {
-        this.clearDBKeepFirstRow("Cart");
+        this.clearDBKeepFirstRow("Carts");
     }
     
 //    Users-specific methods:
@@ -1091,8 +1105,85 @@ public class DBManager {
     }
     
 //    Orders-specific methods:
+    public String[] selectFromOrders(String field, String value, String fieldType){
+        return this.selectFromDB("Orders", field, value, fieldType);
+    }
     
+    public String[] selectOrderByProdOrderID(String ProdOrderID) {
+        return this.selectFromOrders("ProdOrderID", ProdOrderID, "int");
+    }
+    
+    public String[][] selectAllFromOrders(String field, String value, String fieldType){
+        return this.selectAllFromDB("Orders", field, value, fieldType);
+    }
+    
+    public String[][] selectAllCompleteOrders() {
+        return this.selectAllFromOrders("Fulfilled", "TRUE", "boolean");
+    }
+    
+    public String[][] trimmedMatrix(String[][] matrix) {
+        try {
+            int rows = matrix.length;
+            int cols = matrix[0].length - 1; // exclude last column
+            String[][] trimmed = new String[rows][cols];
 
+            for (int i = 0; i < rows; i++) {
+                for (int j = 0; j < cols; j++) {
+                    trimmed[i][j] = matrix[i][j];
+                }
+            }
+            return trimmed;
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return new String[0][0]; // return empty matrix
+        }
+    }
+
+    
+    public String[][] selectAllCompleteOrdersClean() {
+        String[][] orders = this.selectAllCompleteOrders();
+        return trimmedMatrix(orders);
+    }
+    
+    public String[][] selectAllIncompleteOrders() {
+        String[][] completeMatrix = this.selectAllFromOrders("Fulfilled", "FALSE", "boolean");
+        return Arrays.copyOfRange(completeMatrix, 1, completeMatrix.length);
+    }
+    
+    public String[][] selectAllIncompleteOrdersClean() {
+        String[][] orders = this.selectAllIncompleteOrders();
+        return trimmedMatrix(orders);
+    }
+    
+    public void addNewOrder(String[] orderRows) {
+        this.addNewItemFromArray("Orders", ordersFields, orderRows, ordersTypes);
+    }
+
+    public void updateOrder(String indexField, String indexValue, String replaceField, String replaceValue) {
+        this.replaceItemInRow("Orders", indexField, indexValue, replaceField, replaceValue, indexValue);
+    }
+    
+    public void updateOrderWithProdOrderID(String ProdOrderID, String replaceField, String replaceValue) {
+        this.updateOrder("ProdOrderID", ProdOrderID, replaceField, replaceValue);
+    }
+    
+    public void toggleFulfilledOfOrder(String ProdOrderID) {
+        
+        String[] order = this.selectOrderByProdOrderID(ProdOrderID);
+        if (order[6].equals("FALSE")) {
+            this.updateOrderWithProdOrderID(ProdOrderID, "Fulfilled", "TRUE");
+        } else {
+            this.updateOrderWithProdOrderID(ProdOrderID, "Fulfilled", "FALSE");
+        }
+        
+    }
+    
+    public void clearOrders() {
+        this.clearDBKeepFirstRow("Orders");
+    }
+    
+    public void deleteFirstItemFromOrders(String column, String value, String dataType) {
+        this.deleteFirstRowFromDB("Orders", column, value, dataType);
+    }
 
     public void printAllRowsOrdered(String table) {
     Connection conn = null;

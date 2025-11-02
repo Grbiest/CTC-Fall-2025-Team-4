@@ -5,6 +5,13 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page import="DB_Objects.DBManager" %>
+<%
+    DBManager dbm = new DBManager(getServletContext());
+    
+    String[][] fulfilledOrders = dbm.selectAllCompleteOrdersClean();
+    String[][] unfulfilledOrders = dbm.selectAllIncompleteOrdersClean();
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -73,64 +80,114 @@
     cursor: pointer;
     margin-top: 20px;
   }
+  
+  .unfulfilled-btn {
+  background: #5BC0DE; /* Light blue */
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.unfulfilled-btn:hover {
+  background: #31B0D5;
+}
 
 </style>
+
+<script>
+  function Unfulfilled_Press(productOrderID) {
+    
+    location.href = "OrderInterface.jsp?unfulfilled=" + encodeURIComponent(productOrderID);
+  }
+</script>
 </head>
 <body>
 <div class="container">
   <h1>Order Interface</h1>
 
-  <h2>Fulfilled Orders</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Order ID</th>
-        <th>Customer</th>
-        <th>Date</th>
-        <th>Total</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>#1001</td>
-        <td>Jane Smith</td>
-        <td>2025-10-01</td>
-        <td>$120.00</td>
-      </tr>
-      <tr>
-        <td>#1002</td>
-        <td>John Doe</td>
-        <td>2025-09-30</td>
-        <td>$85.50</td>
-      </tr>
-    </tbody>
-  </table>
+    <h2>Fulfilled Orders</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Product/Order ID</th>
+          <th>Order ID</th>
+          <th>Product ID</th>
+          <th>Product Name</th>
+          <th>Category</th>
+          <th>Quantity</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <%
+            for (int i = 0; i < fulfilledOrders.length; i++) {
+        %>
+            <tr>
+                <td><%= fulfilledOrders[i][0] %></td>
+                <td><%= fulfilledOrders[i][1] %></td>
+                <td><%= fulfilledOrders[i][2] %></td>
+                <td><%= fulfilledOrders[i][3] %></td>
+                <td><%= fulfilledOrders[i][4] %></td>
+                <td><%= fulfilledOrders[i][5] %></td>
+                <td>
+                    <form method="post" action="ToggleFulfilledOrderServlet">
+                        <input type="hidden" name="productOrderId" value="<%= fulfilledOrders[i][0] %>">
+                        <button type="submit" class="unfulfilled-btn">Open</button>
+                    </form>
+
+                </td>
+            </tr>
+
+        <%
+            }
+        %>
+        </tbody>
+
+    </table>
+
+
 
   <h2>Unfulfilled Orders</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Order ID</th>
-        <th>Customer</th>
-        <th>Date</th>
-        <th>Total</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>#1003</td>
-        <td>Mary Johnson</td>
-        <td>2025-10-02</td>
-        <td>$65.00</td>
-      </tr>
-      <tr>
-        <td>#1004</td>
-        <td>Robert Brown</td>
-        <td>2025-10-02</td>
-        <td>$250.00</td>
-      </tr>
-    </tbody>
-  </table>
+    <table>
+      <thead>
+        <tr>
+          <th>Product/Order ID</th>
+          <th>Order ID</th>
+          <th>Product ID</th>
+          <th>Product Name</th>
+          <th>Category</th>
+          <th>Quantity</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <%
+            for (int i = 0; i < unfulfilledOrders.length; i++) {
+        %>
+            <tr>
+                <td><%= unfulfilledOrders[i][0] %></td>
+                <td><%= unfulfilledOrders[i][1] %></td>
+                <td><%= unfulfilledOrders[i][2] %></td>
+                <td><%= unfulfilledOrders[i][3] %></td>
+                <td><%= unfulfilledOrders[i][4] %></td>
+                <td><%= unfulfilledOrders[i][5] %></td>
+                <td>
+                    <form method="post" action="ToggleFulfilledOrderServlet">
+                        <input type="hidden" name="productOrderId" value="<%= unfulfilledOrders[i][0] %>">
+                        <button type="submit" class="unfulfilled-btn">Shipped</button>
+                    </form>
+                </td>
+            </tr>
+        <%
+            }
+        %>
+      </tbody>
+    </table>
 
   <a href="index.html" class="logout-btn">Logout</a>
 

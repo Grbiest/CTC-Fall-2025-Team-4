@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
+import DB_Objects.DBManager;
 import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -49,7 +50,7 @@ public class LoginServletCar extends HttpServlet {
             pw = request.getParameter("pword");
             System.out.println(un + " " + pw);
             
-            DBManager dbm = new DBManager();
+            DBManager dbm = new DBManager(getServletContext());
             if (dbm.testLogin(un, pw)) {
                 String[] userArr = dbm.selectUserFromLogin(un);
                 if (userArr[7].equals("OPP")){
@@ -71,18 +72,15 @@ public class LoginServletCar extends HttpServlet {
                     ses1.setAttribute("cust1", cust1);
                     
                     System.out.println("Going to ProductsPage as Customer");
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("/ProductsPage.jsp");
+                    dispatcher.forward(request, response);
                 }
+            } else {
+                System.out.println("Login failed");
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/LoginFailed.html");
+                dispatcher.forward(request, response);
             }
             
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Error</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Username and/or password not accepted. Go back.</h1>");
-            out.println("</body>");
-            out.println("</html>");
         }
     }
 

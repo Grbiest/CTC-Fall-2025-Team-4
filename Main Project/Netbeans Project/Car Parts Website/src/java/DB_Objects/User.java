@@ -102,6 +102,10 @@ public class User {
         this.lastName = lastName;
     }
     
+    public String getFullName() {
+        return (this.getFirstName() + " " + this.getLastName());
+    }
+    
     public String getRole() {
         return this.role;
     }

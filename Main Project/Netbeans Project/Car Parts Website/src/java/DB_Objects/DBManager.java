@@ -30,7 +30,11 @@ public class DBManager {
     public DBManager(ServletContext context) {
         try {
             Class.forName(DRIVER_CLASS);
+//            File dbFile = new File(DB_RELATIVE_PATH);
+//            String dbPath = dbFile.getAbsolutePath();
             String dbPath = context.getRealPath("/db/CarDB.accdb");
+            System.out.println("Resolved DB path: " + dbPath);
+
             url = "jdbc:ucanaccess://" + dbPath;
         } catch (Exception e) {
             e.printStackTrace();
@@ -984,6 +988,82 @@ public class DBManager {
             }
         }
     }
+    
+    public boolean checkColumnForValue(String table,
+                                   String field,
+                                   String value,
+                                   String fieldType) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        boolean exists = false;
+
+        try {
+            conn = DriverManager.getConnection(url);
+
+            // Build SQL query
+            String sql = "SELECT 1 FROM " + table + " WHERE " + field + " = ?";
+            pstmt = conn.prepareStatement(sql);
+
+            // Bind the parameter based on fieldType
+            switch (fieldType.toLowerCase()) {
+                case "int":
+                case "integer":
+                    pstmt.setInt(1, Integer.parseInt(value));
+                    break;
+
+                case "long":
+                case "long number":
+                    pstmt.setLong(1, Long.parseLong(value));
+                    break;
+
+                case "double":
+                case "float":
+                case "currency":
+                    pstmt.setDouble(1, Double.parseDouble(value));
+                    break;
+
+                case "boolean":
+                    pstmt.setBoolean(1, Boolean.parseBoolean(value));
+                    break;
+
+                case "yes/no":
+                    boolean boolValue = value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("true");
+                    pstmt.setBoolean(1, boolValue);
+                    break;
+
+                case "date":
+                    pstmt.setDate(1, java.sql.Date.valueOf(value)); // yyyy-MM-dd
+                    break;
+
+                default:
+                    pstmt.setString(1, value);
+                    break;
+            }
+
+            // Execute query
+            rs = pstmt.executeQuery();
+
+            // If any row exists, the value is present
+            exists = rs.next();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return exists;
+    }
+
+    
+    
 
     
 //    Table-specific commands:
@@ -1200,9 +1280,13 @@ public class DBManager {
     }
     
     public String addGuest() {
-        String[] guestRows = {"", "", "", "", "", "0", "GUEST", "GUEST", "GUEST", "0", "GUEST", "GUEST", "GUEST", "0"};
+        String[] guestRows = {"GUEST", "GUEST", "GUEST", "GUEST", "GUEST", "0", "GUEST", "GUEST", "GUEST", "0", "GUEST", "GUEST", "GUEST", "0"};
         this.addNewUser(guestRows);
         return this.selectLastFromDB("Users")[0];
+    }
+    
+    public void removeGuests() {
+        this.deleteAllRowsFromDB("Users", "Login", "GUEST", "String");
     }
     
     public void updateUser(String indexField, String indexValue, String replaceField, String replaceValue) {
@@ -1233,8 +1317,33 @@ public class DBManager {
         this.deleteLastFromDB("Users");
     }
     
+    
     public void clearUsers() {
         this.clearDBKeepFirstRow("Users");
+    }
+    
+    public boolean checkForUserData(String field, String value, String fieldType) {
+        if (this.checkColumnForValue("Users", field, value, fieldType)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    public boolean checkForLogin (String value) {
+        if (this.checkForUserData("Login", value, "String")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+        public boolean checkForEmail (String value) {
+        if (this.checkForUserData("Email", value, "String")) {
+            return true;
+        } else {
+            return false;
+        }
     }
     
 //    Orders-specific methods:

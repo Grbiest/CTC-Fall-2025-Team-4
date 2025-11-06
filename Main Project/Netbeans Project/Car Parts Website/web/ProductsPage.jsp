@@ -30,10 +30,11 @@
     .logo {
       width: 423px;
       height: 214px;
-      background: url("https://placehold.co/423x214") no-repeat center;
-      background-size: contain;
-      display: block; /* ensure the <a> tag behaves like a block for width/height */
+      background: url("i/WhiteCarLogo.png") no-repeat center;
+      background-size: 100% 100%; /* Stretch to fill */
+      display: block;
     }
+
 
 
     .search-bar {
@@ -129,24 +130,11 @@
 <body>
     <%
     DB_Objects.User user = (DB_Objects.User) session.getAttribute("user");
-
-    if (user != null) {
-        if (user instanceof DB_Objects.Customer) {
-            out.println("Welcome, valued customer " + user.getUsername() + "!");
-        } else if (user instanceof DB_Objects.Guest) {
-            out.println("Welcome, guest!");
-        } else {
-            out.println("Unknown user type.");
-        }
-    } else {
-        out.println("No user in session.");
-    }
 %>
     <!-- HEADER -->
     <header>
-        <form id="logoForm" action="loginCar" method="post" style="display: inline;">
-            <div class="logo" onclick="document.getElementById('logoForm').submit();"></div>
-        </form>
+        <a href="ProductsPage.jsp" class="logo"></a>
+
 
 
 
@@ -160,9 +148,12 @@
         </form>
 
 
-        <div class="nav-links">
+    <div class="nav-links">
+      <%
+        if (user instanceof DB_Objects.Guest) {
+      %>
             <!-- Login Form -->
-            <form action="LoginFromGuestServlet" method="post" style="display: inline;">
+            <form action="index.html" method="post" style="display: inline;">
               <button type="submit" class="nav-btn">Login</button>
             </form>
 
@@ -170,12 +161,28 @@
             <form action="SignUpServlet" method="post" style="display: inline;">
               <button type="submit" class="nav-btn">Sign Up</button>
             </form>
-
-            <!-- Cart Form -->
-            <form action="CartServlet" method="post" style="display: inline;">
-              <button type="submit" class="nav-btn">Cart (0)</button>
+        <%
+          } else if (user instanceof DB_Objects.Customer) {
+        %>
+            <!-- Account Form -->
+            <form action="AccountServlet" method="post" style="display: inline;">
+              <button type="submit" class="nav-btn">Account</button>
             </form>
-          </div>
+
+            <!-- Sign Out Form -->
+            <form action="index.html" method="post" style="display: inline;">
+              <button type="submit" class="nav-btn">Sign Out</button>
+            </form>
+        <%
+          }
+        %>
+
+        <!-- Cart Form -->
+        <form action="CartServlet" method="post" style="display: inline;">
+          <button type="submit" class="nav-btn">Cart (0)</button>
+        </form>
+    </div>
+
 
   </header>
 
@@ -212,5 +219,21 @@
       <div class="btn">View Product</div>
     </div>
   </section>
+  
+  <!--This next section will activate only if the user is a guest and tries to leave, and will log the user out.-->
+  <script>
+      if (user instanceof DB_Objects.Guest) {
+            navigator.sendBeacon("UserExitServlet", data);
+        window.addEventListener("beforeunload", function (e) {
+          // Optional: send a request to the server or log activity
+          navigator.sendBeacon("UserExitServlet");
+          Console.log("Leaving ProductsPage");
+
+          // Optional: show a confirmation dialog (not supported in all browsers)
+          // e.preventDefault();
+          // e.returnValue = '';
+        });
+      }
+</script>
 </body>
 </html>

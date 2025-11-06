@@ -1,5 +1,6 @@
 
 import DB_Objects.DBManager;
+import DB_Objects.Guest;
 
 
 public class Test {
@@ -22,14 +23,15 @@ public class Test {
         
 //        String table = "Users";
 //        String[] fields = {"Login", "Password", "FirstName", "LastName", "Email", "PhoneNumber", "ShippingStreet", "ShippingCity", "ShippingState", "ShippingZip", "BillingStreet", "BillingCity", "BillingState", "BillingZip"};
-////        String[] rows = {"JohnSmith", "12345", "John", "Smith", "jsmith@cars.com", "5555555", "123 Main St", "CityTown", "UT", "1234567", "123 Main St", "CityTown", "UT", "1234567"};
-////        String[] rows = {"GeraldSmith", "12345", "Gerald", "Smith", "gsmith@cars.com", "0", "OPP", "OPP", "OPP", "0", "OPP", "OPP", "OPP", "0"};
+//        String[] rows = {"JohnSmith", "12345", "John", "Smith", "jsmith@cars.com", "5555555", "123 Main St", "CityTown", "UT", "1234567", "123 Main St", "CityTown", "UT", "1234567"};
+//        String[] rows = {"GeraldSmith", "12345", "Gerald", "Smith", "gsmith@cars.com", "0", "OPP", "OPP", "OPP", "0", "OPP", "OPP", "OPP", "0"};
 //        String[] types = {"text", "text", "text", "text", "text", "long", "text", "text", "text", "int", "text", "text", "text", "int"};
-        
-        String table = "Orders";
-        String[] fields = {"OrderID", "ProdID", "ProdName", "Category", "Quantity", "Fulfilled"};
-        String[] rows = {"10015", "10045", "Goodyear Tire", "5", "2", "False"};
-        String[] types = {"int", "int", "text", "text", "int", "boolean"};
+//        String[] rows = {null, null, null, null, null, "0", null, null, null, "0", null, null, null, "0"};
+//        
+//        String table = "Orders";
+//        String[] fields = {"OrderID", "ProdID", "ProdName", "Category", "Quantity", "Fulfilled"};
+//        String[] rows = {"10015", "10045", "Goodyear Tire", "5", "2", "False"};
+//        String[] types = {"int", "int", "text", "text", "int", "boolean"};
 //
 //        dbm.addNewItemFromArray(table, fields, rows, types);
 //        dbm.selectFromDB(table, "UserID", "10001", "int");
@@ -42,9 +44,14 @@ public class Test {
 //        cust1.displayCustomerInfo();
         
         
-//        System.out.println(dbm.addGuest());
-        dbm.deleteLastUser();
+
+        
+
+        
         dbm.printAllDBs();
+        System.out.println(dbm.checkForLogin("b"));
+
+
         
         
 //        User user1 = new User();

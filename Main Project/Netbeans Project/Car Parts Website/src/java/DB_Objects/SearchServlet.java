@@ -1,12 +1,10 @@
+package DB_Objects;
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-import DB_Objects.OrderProcessingPerson;
-import DB_Objects.Customer;
-import DB_Objects.DBManager;
-import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -14,14 +12,13 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 
 /**
  *
  * @author Grant
  */
-@WebServlet(urlPatterns = {"/LoginServletCar"})
-public class LoginServletCar extends HttpServlet {
+@WebServlet(urlPatterns = {"/SearchServlet"})
+public class SearchServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -40,49 +37,12 @@ public class LoginServletCar extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet LoginServletCar</title>");
+            out.println("<title>Servlet SearchServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet LoginServletCar at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet SearchServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
-            
-            String un, pw;
-            un = request.getParameter("uname");
-            pw = request.getParameter("pword");
-            System.out.println(un + " " + pw);
-            
-            DBManager dbm = new DBManager(getServletContext());
-            if (!un.isEmpty() && dbm.testLogin(un, pw)) {
-                String[] userArr = dbm.selectUserFromLogin(un);
-                if (userArr[7].equals("OPP")){
-                    
-                    OrderProcessingPerson opp1 = new OrderProcessingPerson();
-                    opp1.setOrderProcessingPersonInfoFromArray(userArr);
-                    HttpSession ses1;
-                    ses1 = request.getSession();
-                    ses1.setAttribute("user", opp1);
-                    
-                    System.out.println("Going to OrderInterface as OrderProcessingPerson");
-                    RequestDispatcher dispatcher = request.getRequestDispatcher("/OrderInterface.jsp");
-                    dispatcher.forward(request, response);
-                } else {
-                    Customer cust1 = new Customer();
-                    cust1.setCustomerInfoFromArray(userArr);
-                    HttpSession ses1;
-                    ses1 = request.getSession();
-                    ses1.setAttribute("user", cust1);
-                    
-                    System.out.println("Going to ProductsPage as Customer");
-                    RequestDispatcher dispatcher = request.getRequestDispatcher("/ProductsPage.jsp");
-                    dispatcher.forward(request, response);
-                }
-            } else {
-                System.out.println("Login failed");
-                RequestDispatcher dispatcher = request.getRequestDispatcher("/LoginFailed.html");
-                dispatcher.forward(request, response);
-            }
-            
         }
     }
 

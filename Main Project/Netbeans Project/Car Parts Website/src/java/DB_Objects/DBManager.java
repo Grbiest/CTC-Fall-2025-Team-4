@@ -1,13 +1,17 @@
+package DB_Objects;
+
+import jakarta.servlet.ServletContext;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.io.File;
+import java.util.Arrays;
 
 public class DBManager {
 
-    private static final String DB_RELATIVE_PATH = "db/CarDB.accdb";
+    private static final String DB_RELATIVE_PATH = "web/db/CarDB.accdb";
     private static final String DRIVER_CLASS = "net.ucanaccess.jdbc.UcanaccessDriver";
 
     private String url;
@@ -22,6 +26,20 @@ public class DBManager {
             e.printStackTrace();
         }
     }
+    
+    public DBManager(ServletContext context) {
+        try {
+            Class.forName(DRIVER_CLASS);
+//            File dbFile = new File(DB_RELATIVE_PATH);
+//            String dbPath = dbFile.getAbsolutePath();
+            String dbPath = context.getRealPath("/db/CarDB.accdb");
+            System.out.println("Resolved DB path: " + dbPath);
+
+            url = "jdbc:ucanaccess://" + dbPath;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+}
     
     public String[] selectFromDB(String table, String field, String value, String fieldType) {
         Connection conn = null;
@@ -100,6 +118,62 @@ public class DBManager {
             }
         }
     }
+    
+    public String[] selectLastFromDB(String table) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DriverManager.getConnection(url);
+
+            // Step 1: Get the first column name (usually AutoNumber / primary key)
+            String metaSql = "SELECT * FROM " + table;
+            pstmt = conn.prepareStatement(metaSql);
+            rs = pstmt.executeQuery();
+            ResultSetMetaData meta = rs.getMetaData();
+
+            if (meta.getColumnCount() == 0) {
+                return null; // Table has no columns
+            }
+
+            String keyColumn = meta.getColumnName(1); // assume first column is key
+            rs.close();
+            pstmt.close();
+
+            // Step 2: Select the last record based on that column
+            String sql = "SELECT TOP 1 * FROM " + table + " ORDER BY " + keyColumn + " DESC";
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            // Step 3: Return the last record as String[]
+            if (rs.next()) {
+                int columnCount = meta.getColumnCount();
+                String[] resultRow = new String[columnCount];
+
+                for (int i = 1; i <= columnCount; i++) {
+                    resultRow[i - 1] = rs.getString(i);
+                }
+
+                return resultRow;
+            } else {
+                return null;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
     
     public String[][] selectAllFromDB(String table, String field, String value, String fieldType) {
     Connection conn = null;
@@ -533,6 +607,65 @@ public class DBManager {
             }
         }
     }
+    
+    public boolean deleteLastFromDB(String table) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DriverManager.getConnection(url);
+
+            // Step 1: Get the first column name (usually the key)
+            String getColSql = "SELECT * FROM " + table;
+            pstmt = conn.prepareStatement(getColSql);
+            rs = pstmt.executeQuery();
+            ResultSetMetaData meta = rs.getMetaData();
+
+            if (meta.getColumnCount() == 0) {
+                return false; // table empty or invalid
+            }
+
+            String keyColumn = meta.getColumnName(1); // assume first column is ID-like
+            rs.close();
+            pstmt.close();
+
+            // Step 2: Find the last record by ordering descending
+            String findLastSql = "SELECT TOP 1 " + keyColumn + " FROM " + table + " ORDER BY " + keyColumn + " DESC";
+            pstmt = conn.prepareStatement(findLastSql);
+            rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                String lastKeyValue = rs.getString(1);
+                rs.close();
+                pstmt.close();
+
+                // Step 3: Delete that record
+                String deleteSql = "DELETE FROM " + table + " WHERE " + keyColumn + " = ?";
+                pstmt = conn.prepareStatement(deleteSql);
+                pstmt.setString(1, lastKeyValue);
+
+                int rowsAffected = pstmt.executeUpdate();
+                return rowsAffected > 0;
+            } else {
+                return false;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+
 
     public void deleteAllRowsFromDB(String table, String column, String value, String dataType) {
         Connection conn = null;
@@ -855,6 +988,82 @@ public class DBManager {
             }
         }
     }
+    
+    public boolean checkColumnForValue(String table,
+                                   String field,
+                                   String value,
+                                   String fieldType) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        boolean exists = false;
+
+        try {
+            conn = DriverManager.getConnection(url);
+
+            // Build SQL query
+            String sql = "SELECT 1 FROM " + table + " WHERE " + field + " = ?";
+            pstmt = conn.prepareStatement(sql);
+
+            // Bind the parameter based on fieldType
+            switch (fieldType.toLowerCase()) {
+                case "int":
+                case "integer":
+                    pstmt.setInt(1, Integer.parseInt(value));
+                    break;
+
+                case "long":
+                case "long number":
+                    pstmt.setLong(1, Long.parseLong(value));
+                    break;
+
+                case "double":
+                case "float":
+                case "currency":
+                    pstmt.setDouble(1, Double.parseDouble(value));
+                    break;
+
+                case "boolean":
+                    pstmt.setBoolean(1, Boolean.parseBoolean(value));
+                    break;
+
+                case "yes/no":
+                    boolean boolValue = value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("true");
+                    pstmt.setBoolean(1, boolValue);
+                    break;
+
+                case "date":
+                    pstmt.setDate(1, java.sql.Date.valueOf(value)); // yyyy-MM-dd
+                    break;
+
+                default:
+                    pstmt.setString(1, value);
+                    break;
+            }
+
+            // Execute query
+            rs = pstmt.executeQuery();
+
+            // If any row exists, the value is present
+            exists = rs.next();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return exists;
+    }
+
+    
+    
 
     
 //    Table-specific commands:
@@ -1020,11 +1229,11 @@ public class DBManager {
     }
     
     public void deleteFirstItemFromCarts(String column, String value, String dataType) {
-        this.deleteFirstRowFromDB("Cart", column, value, dataType);
+        this.deleteFirstRowFromDB("Carts", column, value, dataType);
     }
     
     public void clearCarts() {
-        this.clearDBKeepFirstRow("Cart");
+        this.clearDBKeepFirstRow("Carts");
     }
     
 //    Users-specific methods:
@@ -1044,6 +1253,10 @@ public class DBManager {
     
     public String[] selectUserFromLogin(String Login) {
         return this.selectFromUsers("Login", Login, "String");
+    }
+    
+    public String[] selectUserFromID(String UserID) {
+        return this.selectFromUsers("UserID", UserID, "String");
     }
     
     public boolean testLogin(String Login, String Password) {
@@ -1066,6 +1279,16 @@ public class DBManager {
         this.addNewItemFromArray("Users", usersFields, userRows, usersTypes);
     }
     
+    public String addGuest() {
+        String[] guestRows = {"GUEST", "GUEST", "GUEST", "GUEST", "GUEST", "0", "GUEST", "GUEST", "GUEST", "0", "GUEST", "GUEST", "GUEST", "0"};
+        this.addNewUser(guestRows);
+        return this.selectLastFromDB("Users")[0];
+    }
+    
+    public void removeGuests() {
+        this.deleteAllRowsFromDB("Users", "Login", "GUEST", "String");
+    }
+    
     public void updateUser(String indexField, String indexValue, String replaceField, String replaceValue) {
         this.replaceItemInRow("Users", indexField, indexValue, replaceField, replaceValue, indexValue);
     }
@@ -1083,16 +1306,126 @@ public class DBManager {
     }
 
     public void deleteFirstUser(String column, String value, String dataType) {
-        this.deleteFirstRowFromDB("User", column, value, dataType);
+        this.deleteFirstRowFromDB("Users", column, value, dataType);
     }
+    
+    public void deleteFirstUserWithUserID(String UserID) {
+        this.deleteFirstUser("UserID", UserID, "int");
+    }
+    
+    public void deleteLastUser() {
+        this.deleteLastFromDB("Users");
+    }
+    
     
     public void clearUsers() {
         this.clearDBKeepFirstRow("Users");
     }
     
-//    Orders-specific methods:
+    public boolean checkForUserData(String field, String value, String fieldType) {
+        if (this.checkColumnForValue("Users", field, value, fieldType)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     
+    public boolean checkForLogin (String value) {
+        if (this.checkForUserData("Login", value, "String")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+        public boolean checkForEmail (String value) {
+        if (this.checkForUserData("Email", value, "String")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+//    Orders-specific methods:
+    public String[] selectFromOrders(String field, String value, String fieldType){
+        return this.selectFromDB("Orders", field, value, fieldType);
+    }
+    
+    public String[] selectOrderByProdOrderID(String ProdOrderID) {
+        return this.selectFromOrders("ProdOrderID", ProdOrderID, "int");
+    }
+    
+    public String[][] selectAllFromOrders(String field, String value, String fieldType){
+        return this.selectAllFromDB("Orders", field, value, fieldType);
+    }
+    
+    public String[][] selectAllCompleteOrders() {
+        return this.selectAllFromOrders("Fulfilled", "TRUE", "boolean");
+    }
+    
+    public String[][] trimmedMatrix(String[][] matrix) {
+        try {
+            int rows = matrix.length;
+            int cols = matrix[0].length - 1; // exclude last column
+            String[][] trimmed = new String[rows][cols];
 
+            for (int i = 0; i < rows; i++) {
+                for (int j = 0; j < cols; j++) {
+                    trimmed[i][j] = matrix[i][j];
+                }
+            }
+            return trimmed;
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return new String[0][0]; // return empty matrix
+        }
+    }
+
+    
+    public String[][] selectAllCompleteOrdersClean() {
+        String[][] orders = this.selectAllCompleteOrders();
+        return trimmedMatrix(orders);
+    }
+    
+    public String[][] selectAllIncompleteOrders() {
+        String[][] completeMatrix = this.selectAllFromOrders("Fulfilled", "FALSE", "boolean");
+        return Arrays.copyOfRange(completeMatrix, 1, completeMatrix.length);
+    }
+    
+    public String[][] selectAllIncompleteOrdersClean() {
+        String[][] orders = this.selectAllIncompleteOrders();
+        return trimmedMatrix(orders);
+    }
+    
+    public void addNewOrder(String[] orderRows) {
+        this.addNewItemFromArray("Orders", ordersFields, orderRows, ordersTypes);
+    }
+
+    public void updateOrder(String indexField, String indexValue, String replaceField, String replaceValue) {
+        this.replaceItemInRow("Orders", indexField, indexValue, replaceField, replaceValue, indexValue);
+    }
+    
+    public void updateOrderWithProdOrderID(String ProdOrderID, String replaceField, String replaceValue) {
+        this.updateOrder("ProdOrderID", ProdOrderID, replaceField, replaceValue);
+    }
+    
+    public void toggleFulfilledOfOrder(String ProdOrderID) {
+        
+        String[] order = this.selectOrderByProdOrderID(ProdOrderID);
+        if (order[6].equals("FALSE")) {
+            this.updateOrderWithProdOrderID(ProdOrderID, "Fulfilled", "TRUE");
+        } else {
+            this.updateOrderWithProdOrderID(ProdOrderID, "Fulfilled", "FALSE");
+        }
+        
+    }
+    
+    public void clearOrders() {
+        this.clearDBKeepFirstRow("Orders");
+    }
+    
+    public void deleteFirstItemFromOrders(String column, String value, String dataType) {
+        this.deleteFirstRowFromDB("Orders", column, value, dataType);
+    }
 
     public void printAllRowsOrdered(String table) {
     Connection conn = null;

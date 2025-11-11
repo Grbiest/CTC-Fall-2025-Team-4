@@ -1,3 +1,8 @@
+package DB_Objects;
+
+
+import DB_Objects.DBManager;
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
@@ -95,6 +100,10 @@ public class User {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+    
+    public String getFullName() {
+        return (this.getFirstName() + " " + this.getLastName());
     }
     
     public String getRole() {

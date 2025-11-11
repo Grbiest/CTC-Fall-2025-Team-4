@@ -2,7 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
+package DB_Objects;
 
+import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -15,8 +17,8 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * @author Grant
  */
-@WebServlet(urlPatterns = {"/SearchServlet"})
-public class SearchServlet extends HttpServlet {
+@WebServlet(name = "CreateAccountServlet", urlPatterns = {"/CreateAccountServlet"})
+public class CreateAccountServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -29,19 +31,29 @@ public class SearchServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet SearchServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet SearchServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
+                String em, un, pw;
+                em = request.getParameter("email");
+                un = request.getParameter("username");
+                pw = request.getParameter("password");
+                System.out.println(em + " " + un + " " + pw);
+                
+                DBManager dbm = new DBManager(getServletContext());
+                
+                if (dbm.checkForEmail(em) || dbm.checkForLogin(un)) {
+                    System.out.println("Signup failed. Going to failure page.");
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("/SignUpPageFailed.jsp");
+                    dispatcher.forward(request, response);
+                } else {
+                    //String[] rows = {"GeraldSmith", "12345", "Gerald", "Smith", "gsmith@cars.com", "0", "OPP", "OPP", "OPP", "0", "OPP", "OPP", "OPP", "0"};
+                String[] userRows = {un, pw, "", "", em, "0", "", "", "", "0", "", "", "", "0"};
+                dbm.addNewUser(userRows);
+                System.out.println("Signup successful. Going to index.");
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/index.html");
+                dispatcher.forward(request, response);
+                }
+                
+
+
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

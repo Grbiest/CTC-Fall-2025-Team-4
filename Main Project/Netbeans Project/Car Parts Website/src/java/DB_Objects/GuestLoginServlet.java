@@ -43,6 +43,10 @@ public class GuestLoginServlet extends HttpServlet {
         HttpSession ses1;
         ses1 = request.getSession();
         ses1.setAttribute("user", guest1);
+        
+        String UserID = guest1.getUserId();
+        int cartQuantity = dbm.getCartTotalFromUserID(UserID);
+        guest1.setCartQuantity(cartQuantity);
 
         System.out.println("Going to ProductsPage as Guest");
         RequestDispatcher dispatcher = request.getRequestDispatcher("/ProductsPage.jsp");

@@ -1,6 +1,8 @@
 
+import DB_Objects.Customer;
 import DB_Objects.DBManager;
 import DB_Objects.Guest;
+import java.util.Arrays;
 
 
 public class Test {
@@ -18,7 +20,7 @@ public class Test {
 //
 //        String table = "Carts";
 //        String[] fields = {"UserID", "ProdID", "ProdName", "Price", "Category", "Quantity"};
-//        String[] rows = {"10001", "10001", "Michelin Tires", "100.00", "Tires", "3"};
+//        String[] rows = {"10002", "10001", "Michelin Tires", "100.00", "Tires", "3"};
 //        String[] types = {"int", "int", "text", "currency", "text", "int"};
         
 //        String table = "Users";
@@ -47,8 +49,13 @@ public class Test {
 
         
 
-//        dbm.updateUserWithUserID("10002", "Phone", "5555555555");
+
+//        dbm.updateUserWithUserID("10002", "PhoneNumber", "5555555555");
+//        dbm.updateUserWithUserID("10002", "ShippingZIp", "12345");
+//        dbm.updateUserWithUserID("10002", "BillingZIp", "12345");
         dbm.printAllDBs();
+ //        dbm.addNewItemToCartFromInventory("10002", "10002");
+
         
 
 

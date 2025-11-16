@@ -56,7 +56,6 @@ public class LoginServletCar extends HttpServlet {
             
             DBManager dbm = new DBManager(getServletContext());
             dbm.removeGuests();
-            dbm.printAllDBs();
             if (!un.isEmpty() && dbm.testLogin(un, pw)) {
                 String[] userArr = dbm.selectUserFromLogin(un);
                 if (userArr[7].equals("OPP")){
@@ -76,6 +75,10 @@ public class LoginServletCar extends HttpServlet {
                     HttpSession ses1;
                     ses1 = request.getSession();
                     ses1.setAttribute("user", cust1);
+                    
+                    String UserID = cust1.getUserId();
+                    int cartQuantity = dbm.getCartTotalFromUserID(UserID);
+                    cust1.setCartQuantity(cartQuantity);
                     
                     System.out.println("Going to ProductsPage as Customer");
                     RequestDispatcher dispatcher = request.getRequestDispatcher("/ProductsPage.jsp");

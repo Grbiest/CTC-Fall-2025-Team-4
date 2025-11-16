@@ -22,7 +22,23 @@ public class User {
     private String firstName;
     private String lastName;
     private String role;
+    
+    private String[][] cartUI;
+    private int cartQuantity;
+    
+    /**
+     * DBManager does not currently work with user.java with a relative filepath. 
+     * In order for DBManager to properly function, it will have to 
+     * be reworked to an absolute filepath.
+     * In a real world project, the database will have an absolute filepath,
+     * but for the sake of convenience in sharing this project as a complete package,
+     * a relative filepath is used. Therefore, none of the DBManager methods in this
+     * class or child classes are used in this project, and everything is done
+     * from the DBManager class instead.
+     */
+
     private DBManager dbm = new DBManager();
+
 
     public User() {
         this.userId = "";
@@ -61,7 +77,39 @@ public class User {
             return "Customer";
     }
 
+    public void updateCartUI(){
+        this.cartUI = this.getDbm().getCartItemsPriceTotalFromUserID(this.getUserId());
+    }
+    
+    public void setCartUI(String[][] cartUI){
+        this.cartUI = cartUI;
+    }
+    
+    public String[][] getCart(){
+        return this.cartUI;
+    }
+    
+    public void updateCartQuantity(){
+        this.cartQuantity = this.getDbm().getCartTotalFromUserID(this.getUserId());
+    }
+    
+    public void setCartQuantity(int cartQuantity){
+        this.cartQuantity = cartQuantity;
+    }
+    
+    
+    public int getCartQuantity(){
+        return this.cartQuantity;
+    }
+    
+    public void updateCartInfo(){
+        this.updateCartQuantity();
+        this.updateCartUI();
+    }
+    
     // Getters and setters
+      
+    
     public String getUserId() {
         return userId;
     }
@@ -118,6 +166,7 @@ public class User {
         return this.dbm;
     }
     
+
     public void displayUserInfo() {
         System.out.println("=== User Information ===");
         System.out.println("User ID:    " + userId);

@@ -130,6 +130,7 @@
 <body>
     <%
     DB_Objects.User user = (DB_Objects.User) session.getAttribute("user");
+    
 %>
     <!-- HEADER -->
     <header>
@@ -161,8 +162,14 @@
             <form action="SignUpServlet" method="post" style="display: inline;">
               <button type="submit" class="nav-btn">Sign Up</button>
             </form>
+            
+            <!-- Cart Form -->
+            <form action="CartServlet" method="post" style="display: inline;">
+              <button type="submit" class="nav-btn">Cart (<%= user.getCartQuantity() %>)</button>
+            </form>
         <%
           } else if (user instanceof DB_Objects.Customer) {
+          
         %>
             <!-- Account Form -->
             <form action="AccountServlet" method="post" style="display: inline;">
@@ -173,14 +180,16 @@
             <form action="index.html" method="post" style="display: inline;">
               <button type="submit" class="nav-btn">Sign Out</button>
             </form>
+            
+            <!-- Cart Form -->
+            <form action="CartServlet" method="post" style="display: inline;">
+              <button type="submit" class="nav-btn">Cart (<%= user.getCartQuantity() %>)</button>
+            </form>
         <%
           }
         %>
 
-        <!-- Cart Form -->
-        <form action="CartServlet" method="post" style="display: inline;">
-          <button type="submit" class="nav-btn">Cart (0)</button>
-        </form>
+
     </div>
 
 

@@ -112,7 +112,6 @@
     <div class="container">
           <div class="card" role="main" aria-label="Login card">
               <div class="form-title">Sign Up</div>
-
               <form onsubmit="return validatePasswords()" action="CreateAccountServlet" method="post">
                     <div class="form-group">
                       <div class="form-label">Email</div>

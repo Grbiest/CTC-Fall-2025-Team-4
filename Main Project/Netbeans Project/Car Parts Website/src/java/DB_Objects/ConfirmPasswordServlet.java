@@ -1,9 +1,8 @@
-package DB_Objects;
-
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
+package DB_Objects;
 
 import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
@@ -19,8 +18,8 @@ import jakarta.servlet.http.HttpSession;
  *
  * @author Grant
  */
-@WebServlet(urlPatterns = {"/AccountServlet"})
-public class AccountServlet extends HttpServlet {
+@WebServlet(name = "ConfirmPasswordServlet", urlPatterns = {"/ConfirmPasswordServlet"})
+public class ConfirmPasswordServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -33,31 +32,50 @@ public class AccountServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-                    HttpSession session = request.getSession(false);
+                    System.out.println("Currently on ConfirmPasswordServlet.");
+            response.setContentType("text/html;charset=UTF-8");
+            try (PrintWriter out = response.getWriter()) {
+                HttpSession session = request.getSession(false);
 
-                    if (session == null) {
-                        response.getWriter().println("No session exists.");
-                        return;
-                    }
+                if (session == null) {
+                    response.getWriter().println("No session exists.");
+                    return;
+                }
 
-                    Customer user1 = (Customer) session.getAttribute("user");
+                Customer user1 = (Customer) session.getAttribute("user");
 
-                    if (user1 == null) {
-                        response.getWriter().println("User not found in session.");
-                        return;
-                    }
-                    
-                    System.out.println("User retrieved: " + user1.getUsername());
-                    
-                    DBManager dbm = new DBManager(getServletContext());
-                    String UserID = user1.getUserId();
-                    int cartQuantity = dbm.getCartTotalFromUserID(UserID);
-                    user1.setCartQuantity(cartQuantity);
-                    
-                    
-                    System.out.println("Going to Account page");
-                    RequestDispatcher dispatcher = request.getRequestDispatcher("/AccountPage.jsp");
+                if (user1 == null) {
+                    response.getWriter().println("User not found in session.");
+                    return;
+                }
+
+                System.out.println("User retrieved: " + user1.getUsername());
+
+
+
+                String pw, npw;
+                pw = user1.getPassword();
+                npw = request.getParameter("password");
+                
+                System.out.println(npw);
+
+                DBManager dbm = new DBManager(getServletContext());
+                
+                if (pw.equals(npw)){
+                    System.out.println("Password change failed. Going to failure page.");
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("/ChangePasswordFailed.jsp");
                     dispatcher.forward(request, response);
+                } else{
+                    user1.setPassword(npw);
+                    user1.displayCustomerInfo();
+                    
+                    dbm.updateUserWithUserID(user1.getUserId(), "Password", npw);
+                    
+                    System.out.println("Password change successful. Going to success page.");
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("/ChangePasswordSucceeded.jsp");
+                    dispatcher.forward(request, response);
+                }
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

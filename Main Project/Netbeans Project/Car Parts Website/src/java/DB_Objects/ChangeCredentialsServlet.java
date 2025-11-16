@@ -1,10 +1,10 @@
-package DB_Objects;
-
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
+package DB_Objects;
 
+import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -12,13 +12,14 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 /**
  *
  * @author Grant
  */
-@WebServlet(urlPatterns = {"/LoginFromGuestServlet"})
-public class LoginFromGuestServlet extends HttpServlet {
+@WebServlet(name = "ChangeCredentialsServlet", urlPatterns = {"/ChangeCredentialsServlet"})
+public class ChangeCredentialsServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -33,16 +34,12 @@ public class LoginFromGuestServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet LoginFromGuestServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet LoginFromGuestServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
+
+                    
+                    
+                    System.out.println("Going to Change Username/Password page");
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("/ChangeCredentials.jsp");
+                    dispatcher.forward(request, response);
         }
     }
 

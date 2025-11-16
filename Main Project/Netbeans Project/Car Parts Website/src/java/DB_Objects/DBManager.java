@@ -355,18 +355,23 @@ public class DBManager {
             }
 
             conn = DriverManager.getConnection(url);
-
-            // Step 1: Detect primary key column automatically
-            String primaryKeyField = null;
-            java.sql.DatabaseMetaData dbMeta = conn.getMetaData();
-            rs = dbMeta.getPrimaryKeys(null, null, table);
-            if (rs.next()) {
-                primaryKeyField = rs.getString("COLUMN_NAME");
-            }
-            rs.close();
-
-            if (primaryKeyField == null) {
-                throw new RuntimeException("Could not detect primary key column for table " + table);
+            // Step 1: Set primary key column manually (Access metadata can be unreliable)
+            String primaryKeyField;
+            switch (table.toLowerCase()) {
+                case "inventory":
+                    primaryKeyField = "ProdID";
+                    break;
+                case "carts":
+                    primaryKeyField = "CartItemID";
+                    break;
+                case "users":
+                    primaryKeyField = "UserID";
+                    break;
+                case "orders":
+                    primaryKeyField = "ProdOrderID";
+                    break;
+                default:
+                    throw new RuntimeException("Unknown primary key for table: " + table);
             }
 
             // Step 2: Find next primary key value
@@ -876,6 +881,9 @@ public class DBManager {
 
         try {
             if (fields.length != row.length || fields.length != fieldTypes.length) {
+                System.out.println(Arrays.toString(row));
+                System.out.println(Arrays.toString(fields));
+                System.out.println(Arrays.toString(fieldTypes));
                 throw new IllegalArgumentException("Fields, rows, and fieldTypes must have the same length.");
             }
 
@@ -1163,13 +1171,45 @@ public class DBManager {
     public String[] selectFromCarts(String field, String value, String fieldType){
         return this.selectFromDB("Carts", field, value, fieldType);
     }
-    
+
     public String[][] selectCartFromUserID(String UserID) {
         return this.selectAllFromCarts("UserID", UserID, "int");
     }
+
+    public String[][] getCartItemsPriceTotalFromUserID(String UserID) {
+        // Get full cart data first
+        String[][] fullCart = this.selectCartFromUserID(UserID);
+
+        // Handle null or empty results safely
+        if (fullCart == null || fullCart.length == 0) {
+            return new String[0][0];
+        }
+
+        // Each row will contain 3 columns now: 4th, 5th, and 7th
+        String[][] reducedCart = new String[fullCart.length][3];
+
+        for (int i = 0; i < fullCart.length; i++) {
+            reducedCart[i][0] = fullCart[i][3]; // 4th column
+            reducedCart[i][1] = fullCart[i][4]; // 5th column   <-- added
+            reducedCart[i][2] = fullCart[i][6]; // 7th column
+        }
+
+        return reducedCart;
+    }
+
+        
+    public int getCartTotalFromUserID(String UserID) {
+        int total = 0;
+        String[][] cart = this.getCartItemsPriceTotalFromUserID(UserID);
+        for (String[] row : cart) {
+            total =+ Integer.parseInt(row[2]);
+        }
+        return total;
+    }
+
     
     public String[] selectFromCartsByCartItemID(String CartItemID) {
-        return this.selectFromInventory("ProdID", CartItemID, "int");
+        return this.selectFromCarts("CartItemID", CartItemID, "int");
     }
 
     public String[][] selectAllFromCarts(String field, String value, String fieldType){
@@ -1178,6 +1218,57 @@ public class DBManager {
 
     public void addNewItemToCart(String[] cartRows) {
         this.addNewItemFromArray("Carts", cartsFields, cartRows, cartsTypes);
+    }
+    
+    public boolean checkIfProdIDInCart(String ProdID, String UserID) {
+        String[][] userCart = this.selectCartFromUserID(UserID);
+        if (userCart == null) return false;
+
+        for (int i = 0; i < userCart.length; i++) {
+            // Check if the row has at least 2 columns
+            if (userCart[i] != null && userCart[i].length > 1) {
+                if (userCart[i][1].equals(ProdID)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+
+    }
+    
+    public String getCartItemIDFromProdIdAndUserID(String ProdID, String UserID){
+        String[][] userCart = this.selectCartFromUserID(UserID);
+        int cartIDRow = -1;
+            for (int i = 0; i < userCart.length; i++) {
+            // Check if the row has at least 2 columns
+            if (userCart[i] != null && userCart[i].length > 1) {
+                if (userCart[i][1].equals(ProdID)) {
+                    cartIDRow = i;  // Return the row index where found
+                }
+            }
+        }
+            if (cartIDRow > 0) {
+                return userCart[cartIDRow][0];
+            } else {
+                return "CartItemID not found";
+            }
+    }
+    
+    public void addNewItemToCartFromInventory(String ProdID, String UserID) {
+        String[] inventoryItem = this.selectFromInventoryByProdID(ProdID);
+        String ProdName = inventoryItem[1];
+        String Price = inventoryItem[2];
+        String Category = inventoryItem[3];
+        String cartQuantity;
+        String CartItemID = this.getCartItemIDFromProdIdAndUserID(ProdID, UserID);
+        if (!CartItemID.equals("CartItemID not found")){
+            cartQuantity = this.selectFromCartsByCartItemID(CartItemID)[7];
+            
+        } else {
+            cartQuantity = "0";
+        }
+        String[] cartRows = {UserID, ProdID, ProdName, Category, cartQuantity};
+        System.out.println(Arrays.toString(cartRows));
     }
     
     public void updateItemInCart(String indexField, String indexValue, String replaceField, String replaceValue) {
@@ -1298,7 +1389,7 @@ public class DBManager {
     }
     
     public void replaceUser(String indexField, String indexValue, String[] row, String indexType) {
-        this.replaceRow("Users", indexField, indexValue, this.inventoryFields, row, this.inventoryTypes, indexType);
+        this.replaceRow("Users", indexField, indexValue, this.usersFields, row, this.usersTypes, indexType);
     }
     
     public void replaceUserWithUserWithUserID(String UserID, String[]row) {
@@ -1345,6 +1436,8 @@ public class DBManager {
             return false;
         }
     }
+        
+
     
 //    Orders-specific methods:
     public String[] selectFromOrders(String field, String value, String fieldType){

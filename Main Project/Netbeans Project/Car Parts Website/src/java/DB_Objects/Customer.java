@@ -20,6 +20,8 @@ public class Customer extends User {
     private String billingCity;
     private String billingState;
     private String billingZip;
+    
+    
     //private Cart cart;
 
     public Customer() {
@@ -34,6 +36,7 @@ public class Customer extends User {
         this.billingCity = "";
         this.billingState = "";
         this.billingZip = "";
+         
         //this.cart = new Cart();
         this.setRole("customer");
     }
@@ -90,6 +93,8 @@ public class Customer extends User {
     public void setCustomerInfoFromUserID(String userID) {
         this.setCustomerInfoFromArray(this.getDbm().selectFromUsersByUserID(userID));
     }
+    
+    
 
 
 

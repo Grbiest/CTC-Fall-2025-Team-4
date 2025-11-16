@@ -1,11 +1,10 @@
 <%-- 
-    Document   : AccountPage
-    Created on : Nov 6, 2025, 12:52:31 AM
+    Document   : UpdatedAccountPage
+    Created on : Nov 15, 2025, 4:15:48 PM
     Author     : Grant
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -151,6 +150,14 @@
       .nav-btn:hover {
         text-decoration: underline;
       }
+      
+    .update-label {
+      color: #22C55E;
+      font-size: 20px;
+      text-align: center;
+      margin-top: -10px;
+      margin-bottom: 20px;
+    }
 
 
   </style>
@@ -202,6 +209,8 @@
   <!-- Account form -->
     <main>
       <form class="account-card" action="UpdateAccountServlet" method="post">
+        <!--Update message-->
+        <div class="update-label">Account successfully updated.</div>
         <h2>Account Information</h2>
 
         <label for="firstname">First Name</label>
@@ -259,6 +268,8 @@
         <button type="button" class="logout-btn" style="background-color: #000;" onclick="window.location.href='ChangeCredentialsServlet'">
           Change username/password
         </button>
+        
+
 
         <button type="submit" class="logout-btn">Change Account Info</button>
       </form>

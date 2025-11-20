@@ -1,6 +1,6 @@
 <%-- 
-    Document   : Products
-    Created on : Oct 26, 2025, 2:02:52 PM
+    Document   : SearchResults
+    Created on : Nov 19, 2025, 4:01:19 PM
     Author     : Grant
 --%>
 
@@ -116,6 +116,7 @@
       text-decoration: underline;
     }
 
+    
     .nav-btn {
         background: none;
         border: none;
@@ -138,7 +139,7 @@
     <%
     DB_Objects.User user = (DB_Objects.User) session.getAttribute("user");
     DB_Objects.DBManager dbm = (DB_Objects.DBManager) session.getAttribute("dbm");
-    String[][] Inventory = dbm.selectAllOfDBExceptFirst("Inventory");
+    String[][] searchResults = (String[][]) session.getAttribute("searchResults");
 %>
     <!-- HEADER -->
     <header>
@@ -207,25 +208,33 @@
   <div class="hero"></div>
 
   <!-- PRODUCT GRID -->
-  <section class="product-grid">
     <section class="product-grid">
-<%
-    for (int i = 0; i < Inventory.length; i++) {
-        String imageUrl = Inventory[i][6]; // replace with the correct column
-        String productName = Inventory[i][1]; // replace with correct column
-        String price = Inventory[i][2]; // replace with correct column
-        String productLink = Inventory[i][5]; // replace if you store links
-%>
-    <div class="product">
-        <img src="<%= request.getContextPath() %>/<%= imageUrl %>" alt="<%= productName %>">
-        <div class="product-name"><%= productName %></div>
-        <div class="price">$<%= String.format("%.2f", Double.parseDouble(price)) %></div>
-        <a href="<%= request.getContextPath() %>/<%= productLink %>" class="btn">View Product</a>
-    </div>
-<%
-    }
-%>
-</section>
+    <%
+        if (searchResults == null || searchResults.length == 0) {
+    %>
+            <div style="font-size: 28px; color: #555; text-align: center; width: 100%; padding: 60px;">
+                Unable to find any items matching your search.
+            </div>
+    <%
+        } else {
+            for (int i = 0; i < searchResults.length; i++) {
+                String imageUrl = searchResults[i][6]; 
+                String productName = searchResults[i][1];
+                String price = searchResults[i][2];
+                String productLink = searchResults[i][5];
+    %>
+                <div class="product">
+                    <img src="<%= request.getContextPath() %>/<%= imageUrl %>" alt="<%= productName %>">
+                    <div class="product-name"><%= productName %></div>
+                    <div class="price">$<%= String.format("%.2f", Double.parseDouble(price)) %></div>
+                    <a href="<%= request.getContextPath() %>/<%= productLink %>" class="btn">View Product</a>
+                </div>
+    <%
+            }
+        }
+    %>
+    </section>
+
 
   
   <!--This next section will activate only if the user is a guest and tries to leave, and will log the user out.-->

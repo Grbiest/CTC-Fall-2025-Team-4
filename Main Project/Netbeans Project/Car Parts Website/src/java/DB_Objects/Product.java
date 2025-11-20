@@ -12,8 +12,11 @@ public class Product {
     private String prodId;
     private String name;
     private String description;
-    private String price;   // If prices are numeric, better to use BigDecimal later
+    private String price;   
     private String category;
+    private String quantity;
+    private String link;
+    private String imageLink;
 
     // Default constructor
     public Product() {

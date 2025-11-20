@@ -75,6 +75,7 @@ public class LoginServletCar extends HttpServlet {
                     HttpSession ses1;
                     ses1 = request.getSession();
                     ses1.setAttribute("user", cust1);
+                    ses1.setAttribute("dbm", dbm);
                     
                     String UserID = cust1.getUserId();
                     int cartQuantity = dbm.getCartTotalFromUserID(UserID);

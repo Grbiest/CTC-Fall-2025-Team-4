@@ -5,6 +5,7 @@ package DB_Objects;
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
+import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -12,6 +13,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 /**
  *
@@ -33,16 +35,34 @@ public class CartServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet CartServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet CartServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
+            HttpSession session = request.getSession(false);
+
+            if (session == null) {
+                response.getWriter().println("No session exists.");
+                return;
+            }
+
+            User user1 = (User) session.getAttribute("user");
+
+            if (user1 == null) {
+                response.getWriter().println("User not found in session.");
+                return;
+            }
+
+            System.out.println("User retrieved: " + user1.getUsername());
+            
+            
+
+            DBManager dbm = new DBManager(getServletContext());
+            String UserID = user1.getUserId();
+            int cartQuantity = dbm.getCartTotalFromUserID(UserID);
+            user1.setCartQuantity(cartQuantity);
+
+
+            System.out.println("Going to Cart page");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/CartPage.jsp");
+            
+            dispatcher.forward(request, response);
         }
     }
 

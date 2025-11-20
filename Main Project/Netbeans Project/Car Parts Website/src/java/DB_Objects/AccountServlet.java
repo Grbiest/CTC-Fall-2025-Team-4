@@ -32,32 +32,34 @@ public class AccountServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-                    HttpSession session = request.getSession(false);
+        throws ServletException, IOException {
+            HttpSession session = request.getSession(false);
 
-                    if (session == null) {
-                        response.getWriter().println("No session exists.");
-                        return;
-                    }
+            if (session == null) {
+                response.getWriter().println("No session exists.");
+                return;
+            }
 
-                    Customer user1 = (Customer) session.getAttribute("user");
+            Customer user1 = (Customer) session.getAttribute("user");
 
-                    if (user1 == null) {
-                        response.getWriter().println("User not found in session.");
-                        return;
-                    }
-                    
-                    System.out.println("User retrieved: " + user1.getUsername());
-                    
-                    DBManager dbm = new DBManager(getServletContext());
-                    String UserID = user1.getUserId();
-                    int cartQuantity = dbm.getCartTotalFromUserID(UserID);
-                    user1.setCartQuantity(cartQuantity);
-                    
-                    
-                    System.out.println("Going to Account page");
-                    RequestDispatcher dispatcher = request.getRequestDispatcher("/AccountPage.jsp");
-                    dispatcher.forward(request, response);
+            if (user1 == null) {
+                response.getWriter().println("User not found in session.");
+                return;
+            }
+
+            System.out.println("User retrieved: " + user1.getUsername());
+            
+            
+
+            DBManager dbm = new DBManager(getServletContext());
+            String UserID = user1.getUserId();
+            int cartQuantity = dbm.getCartTotalFromUserID(UserID);
+            user1.setCartQuantity(cartQuantity);
+
+
+            System.out.println("Going to Account page");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/AccountPage.jsp");
+            dispatcher.forward(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

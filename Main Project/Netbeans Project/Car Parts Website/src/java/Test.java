@@ -24,13 +24,13 @@ public class Test {
 //        String table = "Carts";
 //        String[] fields = {"UserID", "ProdID", "ProdName", "Price", "Category", "Quantity"};
 //        String[] rows = {"10000", "10000", null, "0.00", null, "0"};
-//        String[] rows = {"10002", "10001", "Michelin Tires", "100.00", "Tires", "3"};
+        String[] rows = {"10002", "10001", "Michelin Tires", "100.00", "Tires", "3"};
 //        String[] types = {"int", "int", "text", "currency", "text", "int"};
         
 //        String table = "Users";
 //        String[] fields = {"Login", "Password", "FirstName", "LastName", "Email", "PhoneNumber", "ShippingStreet", "ShippingCity", "ShippingState", "ShippingZip", "BillingStreet", "BillingCity", "BillingState", "BillingZip"};
 //        String[] rows = {"JohnSmith", "12345", "John", "Smith", "jsmith@cars.com", "5555555", "123 Main St", "CityTown", "UT", "1234567", "123 Main St", "CityTown", "UT", "1234567"};
-        String[] rows = {"GeraldSmith", "12345", "Gerald", "Smith", "gsmith@cars.com", "0", "OPP", "OPP", "OPP", "0", "OPP", "OPP", "OPP", "0"};
+//        String[] rows = {"GeraldSmith", "12345", "Gerald", "Smith", "gsmith@cars.com", "0", "OPP", "OPP", "OPP", "0", "OPP", "OPP", "OPP", "0"};
 //        String[] types = {"text", "text", "text", "text", "text", "long", "text", "text", "text", "int", "text", "text", "text", "int"};
 //        String[] rows = {null, null, null, null, null, "0", null, null, null, "0", null, null, null, "0"};
 ////        
@@ -77,16 +77,12 @@ public class Test {
 //        System.out.println(dbm.addItemToCartFromInventory(prodId, userId, quantity));
 //        System.out.println(dbm.removeItemFromCartToInventory(prodId, userId, quantity));
 
-//        dbm.addItemToCartFromInventory(prodId, userId, quantity);
+        dbm.addItemToCartFromInventory(prodId, userId, quantity);
 //        dbm.clearCarts();
 //        dbm.addGuest();
 //        dbm.printAllDBs();
 //        dbm.updateItemInInventoryWithProdID("10007", "Category", "Headlight Bulbs");
-//        dbm.updateItemInInventoryWithProdID("10009", "Link", "ProductPages/Duralast Gold Strut LS53-91471BG.jsp");
-        dbm.addItemToCartFromInventory(prodId, userId, quantity);
-        dbm.addItemToCartFromInventory(prodId2, userId, quantity);
-        
-        dbm.printAllDBs();
+            dbm.printAllDBs();
 //        String[][] arr = dbm.searchInventory("Wipers");
 //            for (String[] row : arr) {
 //        System.out.println(Arrays.toString(row));

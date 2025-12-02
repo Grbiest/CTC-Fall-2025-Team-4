@@ -285,10 +285,10 @@
         if (cart != null && cart.length > 0) {
             for (int i = 0; i < cart.length; i++) {
 
-                String prodName = cart[i][3];
-                double price = Double.parseDouble(cart[i][4]);
-                int quantity = Integer.parseInt(cart[i][6]);
-                String prodId = cart[i][2];
+                String prodName = cart[i][2];
+                double price = Double.parseDouble(cart[i][3]);
+                int quantity = Integer.parseInt(cart[i][5]);
+                String prodId = cart[i][1];
 
                 String[] inventoryItem = dbm.selectFromInventoryByProdID(prodId);
                 String imageUrl = inventoryItem[6];

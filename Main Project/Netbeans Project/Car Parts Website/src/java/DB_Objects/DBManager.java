@@ -181,6 +181,76 @@ public class DBManager {
             }
         }
     }
+    
+    public String[] selectFromCarts(String field, String value, String fieldType) {
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+    ResultSet rs = null;
+
+    try {
+        conn = DriverManager.getConnection(url);
+
+        // Explicit column order: CartItemID first
+        String sql = "SELECT CartItemID, UserID, ProdID, ProdName, Price, Category, Quantity FROM Carts WHERE " + field + " = ?";
+        pstmt = conn.prepareStatement(sql);
+
+        // Set parameter based on fieldType
+        switch (fieldType.toLowerCase()) {
+            case "int":
+            case "integer":
+                pstmt.setInt(1, Integer.parseInt(value));
+                break;
+            case "long":
+            case "long number":
+                pstmt.setLong(1, Long.parseLong(value));
+                break;
+            case "double":
+            case "float":
+            case "currency":
+                pstmt.setDouble(1, Double.parseDouble(value));
+                break;
+            case "boolean":
+            case "yes/no":
+                boolean boolValue = value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("true");
+                pstmt.setBoolean(1, boolValue);
+                break;
+            case "date":
+                pstmt.setDate(1, java.sql.Date.valueOf(value));
+                break;
+            default:
+                pstmt.setString(1, value);
+                break;
+        }
+
+        rs = pstmt.executeQuery();
+
+        if (rs.next()) {
+            String[] resultRow = new String[7]; // 7 columns explicitly
+            resultRow[0] = rs.getString("CartItemID");
+            resultRow[1] = rs.getString("UserID");
+            resultRow[2] = rs.getString("ProdID");
+            resultRow[3] = rs.getString("ProdName");
+            resultRow[4] = rs.getString("Price");
+            resultRow[5] = rs.getString("Category");
+            resultRow[6] = rs.getString("Quantity");
+            return resultRow;
+        } else {
+            return null;
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return null;
+    } finally {
+        try {
+            if (rs != null) rs.close();
+            if (pstmt != null) pstmt.close();
+            if (conn != null) conn.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
 
     
     public String[][] selectAllFromDB(String table, String field, String value, String fieldType) {
@@ -472,6 +542,127 @@ public class DBManager {
 //        }
 //    }
     
+//    public void addItemToTableAN(String table, String[] fields, String[] values) {
+//    if (fields == null || values == null || fields.length != values.length) {
+//        System.out.println("Invalid input: fields and values must be non-null and same length.");
+//        return;
+//    }
+//
+//    Connection conn = null;
+//    PreparedStatement pstmt = null;
+//
+//    try {
+//        conn = DriverManager.getConnection(url);
+//        conn.setAutoCommit(false); // start transaction
+//
+//        // Build SQL: exclude AutoNumber PK field completely
+//        StringBuilder fieldList = new StringBuilder();
+//        StringBuilder placeholders = new StringBuilder();
+//        for (int i = 0; i < fields.length; i++) {
+//            fieldList.append(fields[i]);
+//            placeholders.append("?");
+//            if (i < fields.length - 1) {
+//                fieldList.append(", ");
+//                placeholders.append(", ");
+//            }
+//        }
+//
+//        String sql = "INSERT INTO " + table + " (" + fieldList + ") VALUES (" + placeholders + ")";
+//        pstmt = conn.prepareStatement(sql);
+//
+//        // Set values
+//        for (int i = 0; i < values.length; i++) {
+//            String value = values[i];
+//            if (value != null && value.matches("\\d+")) {
+//                pstmt.setInt(i + 1, Integer.parseInt(value));
+//            } else {
+//                pstmt.setString(i + 1, value);
+//            }
+//        }
+//
+//        // Execute insert
+//        int rowsInserted = pstmt.executeUpdate();
+//        conn.commit();
+//        System.out.println("Record inserted successfully into " + table + " (rows affected: " + rowsInserted + ")");
+//
+//    } catch (Exception e) {
+//        e.printStackTrace();
+//        try {
+//            if (conn != null) conn.rollback();
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+//    } finally {
+//        try {
+//            if (pstmt != null) pstmt.close();
+//            if (conn != null) conn.setAutoCommit(true);
+//            if (conn != null) conn.close();
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+//    }
+//}
+    public void addItemToTableAN(String table, String[] fields, String[] values) {
+    if (fields == null || values == null || fields.length != values.length) {
+        System.out.println("Invalid input: fields and values must be non-null and same length.");
+        return;
+    }
+
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+
+    try {
+        conn = DriverManager.getConnection(url);
+        conn.setAutoCommit(false); // start transaction
+
+        // Build SQL: exclude AutoNumber PK field completely
+        StringBuilder fieldList = new StringBuilder();
+        StringBuilder placeholders = new StringBuilder();
+        for (int i = 0; i < fields.length; i++) {
+            fieldList.append(fields[i]);
+            placeholders.append("?");
+            if (i < fields.length - 1) {
+                fieldList.append(", ");
+                placeholders.append(", ");
+            }
+        }
+
+        String sql = "INSERT INTO " + table + " (" + fieldList + ") VALUES (" + placeholders + ")";
+        pstmt = conn.prepareStatement(sql);
+
+        // Set values (int if numeric, otherwise string)
+        for (int i = 0; i < values.length; i++) {
+            String value = values[i];
+            if (value != null && value.matches("\\d+")) {
+                pstmt.setInt(i + 1, Integer.parseInt(value));
+            } else {
+                pstmt.setString(i + 1, value);
+            }
+        }
+
+        int rowsInserted = pstmt.executeUpdate();
+        conn.commit();
+        System.out.println("Record inserted successfully into " + table + " (rows affected: " + rowsInserted + ")");
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        try {
+            if (conn != null) conn.rollback();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    } finally {
+        try {
+            if (pstmt != null) pstmt.close();
+            if (conn != null) conn.setAutoCommit(true);
+            if (conn != null) conn.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+
+    
     public void addItemToTable(String table, String[] fields, String[] values, String primaryKeyField) {
     if (fields == null || values == null || fields.length != values.length) {
         System.out.println("Invalid input: fields and values must be non-null and same length.");
@@ -558,6 +749,68 @@ public class DBManager {
         }
     }
 }
+    
+    public void addItemToArrayAN(String table, String[] fields, String[] values) {
+    if (fields == null || values == null || fields.length != values.length) {
+        System.out.println("Invalid input: fields and values must be non-null and same length.");
+        return;
+    }
+
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+
+    try {
+        conn = DriverManager.getConnection(url);
+        conn.setAutoCommit(false); // start transaction
+
+        // Build SQL: exclude AutoNumber PK field completely
+        StringBuilder fieldList = new StringBuilder();
+        StringBuilder placeholders = new StringBuilder();
+        for (int i = 0; i < fields.length; i++) {
+            fieldList.append(fields[i]);
+            placeholders.append("?");
+            if (i < fields.length - 1) {
+                fieldList.append(", ");
+                placeholders.append(", ");
+            }
+        }
+
+        String sql = "INSERT INTO " + table + " (" + fieldList + ") VALUES (" + placeholders + ")";
+        pstmt = conn.prepareStatement(sql);
+
+        // Set values
+        for (int i = 0; i < values.length; i++) {
+            String value = values[i];
+            if (value != null && value.matches("\\d+")) {
+                pstmt.setInt(i + 1, Integer.parseInt(value));
+            } else {
+                pstmt.setString(i + 1, value);
+            }
+        }
+
+        // Execute insert
+        int rowsInserted = pstmt.executeUpdate();
+        conn.commit();
+        System.out.println("Record inserted successfully into " + table + " (rows affected: " + rowsInserted + ")");
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        try {
+            if (conn != null) conn.rollback();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    } finally {
+        try {
+            if (pstmt != null) pstmt.close();
+            if (conn != null) conn.setAutoCommit(true);
+            if (conn != null) conn.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+
 
 
     
@@ -1473,9 +1726,9 @@ public class DBManager {
     
 //    Carts-specific methods:
     
-    public String[] selectFromCarts(String field, String value, String fieldType){
-        return this.selectFromDB("Carts", field, value, fieldType);
-    }
+//    public String[] selectFromCarts(String field, String value, String fieldType){
+//        return this.selectFromDB("Carts", field, value, fieldType);
+//    }
 
     public String[][] selectCartFromUserID(String UserID) {
         return this.selectAllFromCarts("UserID", UserID, "int");
@@ -1490,15 +1743,15 @@ public class DBManager {
             return new String[0][0];
         }
 
-        // Each row will contain 3 columns now: 4th, 5th, and 7th
         String[][] reducedCart = new String[fullCart.length][3];
 
         for (int i = 0; i < fullCart.length; i++) {
-            reducedCart[i][0] = fullCart[i][3]; // 4th column
-            reducedCart[i][1] = fullCart[i][4]; // 5th column   <-- added
-            reducedCart[i][2] = fullCart[i][6]; // 7th column
+            reducedCart[i][0] = fullCart[i][2];
+            reducedCart[i][1] = fullCart[i][3];
+            reducedCart[i][2] = fullCart[i][5];
         }
-
+        System.out.println("Reduced cart:");
+        this.print2DArray(reducedCart);
         return reducedCart;
     }
 
@@ -1507,8 +1760,9 @@ public class DBManager {
         int total = 0;
         String[][] cart = this.getCartItemsPriceTotalFromUserID(UserID);
         for (String[] row : cart) {
-            total =+ Integer.parseInt(row[2]);
+            total += Integer.parseInt(row[2]);
         }
+        System.out.println("Total: "+total);
         return total;
     }
 
@@ -1522,7 +1776,7 @@ public class DBManager {
     }
     
     public void addItemToCarts(String cartRows[]) {
-        this.addItemToTable("Carts", this.cartsFields, cartRows, "CartItemID");
+        this.addItemToTableAN("Carts", this.cartsFields, cartRows);
     }
 
     public void addNewItemToCart(String[] cartRows) {
@@ -1550,11 +1804,12 @@ public class DBManager {
         this.print2DArray(userCart);
         for (String[] order: userCart) {
             System.out.println(Arrays.toString(order));
-            String userId = order[1];
-            String prodId = order[2];
+            String userId = order[0];
+            String prodId = order[1];
             System.out.println("Checking if " + UserID + " is " + userId + " and " + ProdID + " is " + prodId);
             if(userId.equals(UserID) && prodId.equals(ProdID)){
-                return order[0];
+                System.out.println(order[6]);
+                return order[6];
             }
         }
 
@@ -1597,6 +1852,7 @@ public class DBManager {
     public String addItemToCartFromInventory(String ProdID, String UserID, String addQuantity) {
         String[] inventoryItem = this.selectFromInventoryByProdID(ProdID);
         
+        
         String[] cartRows;
         String ProdName = inventoryItem[1];
         String Price = inventoryItem[2];
@@ -1607,10 +1863,11 @@ public class DBManager {
         int newQuantity;
         System.out.println("Product ID:" + ProdID + " UserID:" + UserID);
         String CartItemID = this.getCartItemIDFromProdIdAndUserID(ProdID, UserID);
-        System.out.println(CartItemID);
+        System.out.println("CartItemID: " + CartItemID);
         if (CartItemID.equals("CartItemID not found")){
             newQuantity = Integer.valueOf(addQuantity);
             cartRows = new String[]{UserID, ProdID, ProdName, Price, Category, Integer.toString(newQuantity)};
+            
             validate = this.validateSubtractXOfItemFromInventory(ProdID, addQuantity);
             if (validate.equals("ERROR: Cannot add more than stock.") || validate.equals("ERROR: Out of stock.")) {
                 return validate;
@@ -1618,10 +1875,12 @@ public class DBManager {
             System.out.println(Arrays.toString(cartRows));
             this.addItemToCarts(cartRows);
             System.out.println("Item in inventory:" + Arrays.toString(this.selectFromInventoryByProdID(ProdID)) +
-                    "\nItem in cart:" + Arrays.toString(this.selectFromCartsByCartItemID(UserID + ProdID)));
+                    "\nItem in cart:" + Arrays.toString(this.selectFromCartsByCartItemID(this.getCartItemIDFromProdIdAndUserID(ProdID, UserID))));
             return validate;
         } else {
+            System.out.println(Arrays.toString(this.selectFromCartsByCartItemID(CartItemID)));
             cartQuantity = this.selectFromCartsByCartItemID(CartItemID)[6];
+            System.out.println("Cart Quantity: " + cartQuantity);
             newQuantity = Integer.valueOf(cartQuantity) + Integer.valueOf(addQuantity);
             cartRows = new String[]{UserID, ProdID, ProdName, Price, Category, Integer.toString(newQuantity)};
             System.out.println(Arrays.toString(cartRows));
@@ -1631,7 +1890,7 @@ public class DBManager {
             }
             
             System.out.println("Item in inventory:" + Arrays.toString(this.selectFromInventoryByProdID(ProdID)) +
-                    "\nItem in cart:" + Arrays.toString(this.selectFromCartsByCartItemID(UserID + ProdID)));
+                    "\nItem in cart:" + Arrays.toString(this.selectFromCartsByCartItemID(CartItemID)));
             this.replaceItemInCartWithProdID(ProdID, cartRows);
             return validate;
         }
@@ -1663,9 +1922,11 @@ public class DBManager {
     
     public void removeUserCart(String userId) {
         String[][] userCart = this.selectCartFromUserID(userId);
+        System.out.println("Removing cart: ");
+        this.print2DArray(userCart);
         for (String[] item : userCart) {
-            String prodId = item[2];
-            String quantity = item[6];
+            String prodId = item[1];
+            String quantity = item[5];
             this.removeItemFromCartToInventory(prodId, userId, quantity);
         }
     }
@@ -1687,7 +1948,7 @@ public class DBManager {
     }
     
     public void addMoreOfItemToCartItemID(String CartItemID) {
-        int quantity = Integer.parseInt(this.selectFromCartsByCartItemID(CartItemID)[5]);
+        int quantity = Integer.parseInt(this.selectFromCartsByCartItemID(CartItemID)[6]);
         quantity += 1;
         this.changeQuantityOfItemInCartItemID(CartItemID, Integer.toString(quantity));
     }
@@ -1953,13 +2214,14 @@ public class DBManager {
     public void orderCart(String UserID) {
         String[][] userCart = this.selectCartFromUserID(UserID);
         for (String[] cartItem : userCart) {
-            String orderId = cartItem[0];
-            String prodId = cartItem[2];
-            String prodName = cartItem[3];
-            String category = cartItem[5];
-            String quantity = cartItem[6];
+            
+            String orderId = cartItem[6];
+            String prodId = cartItem[1];
+            String prodName = cartItem[2];
+            String category = cartItem[4];
+            String quantity = cartItem[5];
             String[] orderRows = {orderId, prodId, prodName, category, quantity, "FALSE"};
-            System.out.println("Ordering " + orderRows);
+            System.out.println("Ordering " + Arrays.toString(orderRows));
             this.addNewOrder(orderRows);
         }
         this.removeUserCart(UserID);

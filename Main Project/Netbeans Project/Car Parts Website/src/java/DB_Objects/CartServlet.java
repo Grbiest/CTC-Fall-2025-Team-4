@@ -56,6 +56,7 @@ public class CartServlet extends HttpServlet {
             DBManager dbm = new DBManager(getServletContext());
             String UserID = user1.getUserId();
             int cartQuantity = dbm.getCartTotalFromUserID(UserID);
+            System.out.println("Cart quantity: " + cartQuantity);
             user1.setCartQuantity(cartQuantity);
 
 

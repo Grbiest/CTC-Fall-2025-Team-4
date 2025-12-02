@@ -1,0 +1,45 @@
+Continue as guest ->
+ log out ->
+ continue as guest ->
+ sign up ->
+ enter email (HenrySmith@yahoo.com), username(HSmith), password(456), confirm pword(456) ->
+ account ->
+ change acocunt info ->
+ enter phone, billing address, click shipping address same as billing address ->
+  change username/password ->
+ enter username, password, confirm password, new username ->
+ change username ->
+ enter username, password, confirm password ->
+ change password ->
+ change other account info ->
+ click car icon ->
+ scroll down to car battery ->
+ click qty + button three times ->
+ add to cart ->
+ enter "oil" in search bar and click search ->
+ click on pennzoil motor oil ->
+ add 1 oil to cart ->
+ click on cart ->
+ remove oil from cart ->
+ enter "battery" in search bar and click search ->
+ attempt to add 11 batteries to cart ->
+ enter "tires" in search bar and click search ->
+ click on Michelin Tires ->
+ add 4 tires to cart ->
+ proceed to checkout ->
+ enter credit card number, cvv, expiration date, click on shipping address same as billing address checkbox ->
+ click on order ->
+ click sign out ->
+ click continue as guest ->
+ click on wipers ->
+ scroll down to see out of stock ->
+ search for brake pads ->
+ add 2 brake pads to cart ->
+ proceed to checkout ->
+ enter CCN, CVV, billing address, click on shipping address box ->
+ order ->
+ click login ->
+ login as GeraldSmith username 12345 password ->
+ complete/incomplete some orders ->
+ logout
+

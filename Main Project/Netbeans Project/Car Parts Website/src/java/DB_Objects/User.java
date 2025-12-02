@@ -91,6 +91,7 @@ public class User {
     
     public void updateCartQuantity(){
         this.cartQuantity = this.getDbm().getCartTotalFromUserID(this.getUserId());
+        System.out.println(cartQuantity);
     }
     
     public void setCartQuantity(int cartQuantity){

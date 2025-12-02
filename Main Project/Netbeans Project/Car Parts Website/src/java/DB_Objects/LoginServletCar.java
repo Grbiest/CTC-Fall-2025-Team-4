@@ -56,6 +56,10 @@ public class LoginServletCar extends HttpServlet {
             
             DBManager dbm = new DBManager(getServletContext());
             dbm.removeGuests();
+
+//            For some reason I have to put all dbm funcitons here since they do not work in the standard java classes
+            dbm.printAllDBs();
+            dbm.clearCarts();
             if (!un.isEmpty() && dbm.testLogin(un, pw)) {
                 String[] userArr = dbm.selectUserFromLogin(un);
                 if (userArr[7].equals("OPP")){

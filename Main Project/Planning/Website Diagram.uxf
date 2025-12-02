@@ -4,65 +4,31 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>530</x>
+      <x>580</x>
       <y>0</y>
       <w>210</w>
-      <h>130</h>
+      <h>210</h>
     </coordinates>
-    <panel_attributes>_Landing Page_
+    <panel_attributes>_Login_
 (index.html)
 --
-Logo and 4 buttons:
-Customer Login
-Sign Up
-Continue as Guest
-Employee login</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>820</x>
-      <y>200</y>
-      <w>210</w>
-      <h>160</h>
-    </coordinates>
-    <panel_attributes>_Customer login_
---
-Has toolbar
+Logo
+Welcome text
 2 textboxes:
 Username
 Password
-3 buttons:
+1 button:
 Login
-Back to landing
-Continue without logging in</panel_attributes>
+2 links:
+Sign up
+Continue as guest</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>350</x>
-      <y>200</y>
-      <w>210</w>
-      <h>140</h>
-    </coordinates>
-    <panel_attributes>_Employee login_
---
-No toolbar
-2 textboxes:
-Username
-Password
-2 buttons:
-Login
-Back to landing</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>120</x>
-      <y>200</y>
+      <x>280</x>
+      <y>80</y>
       <w>210</w>
       <h>110</h>
     </coordinates>
@@ -71,6 +37,8 @@ Back to landing</panel_attributes>
 2 tables:
 Fulfilled orders
 Unfulfilled orders
+Button next to each order
+to change to fulfilled
 1 button:
 Logout</panel_attributes>
     <additional_attributes/>
@@ -78,59 +46,44 @@ Logout</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>580</x>
-      <y>200</y>
-      <w>210</w>
-      <h>80</h>
-    </coordinates>
-    <panel_attributes>_Customer Home_
---
-Has toolbar
-Welcome page, about section
-1 button: Back to landing</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
       <x>590</x>
-      <y>400</y>
+      <y>280</y>
       <w>210</w>
       <h>110</h>
     </coordinates>
     <panel_attributes>_Products_
 --
 Has toolbar
-Shows all product categories
-in a grid
-Clicking on product category
-goes to category page</panel_attributes>
+Shows all products in a grid
+Clicking view product goes to
+single product</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1050</x>
-      <y>390</y>
+      <x>260</x>
+      <y>270</y>
       <w>210</w>
-      <h>140</h>
+      <h>160</h>
     </coordinates>
     <panel_attributes>_Single product_
 --
 Has Toolbar
-Link on top to Categories page
 Image
+Title
 Description
 Category
-1 button:
+3 buttons:
++/- quantity
 Add to cart</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>860</x>
-      <y>30</y>
+      <x>690</x>
+      <y>540</y>
       <w>200</w>
       <h>70</h>
     </coordinates>
@@ -144,141 +97,89 @@ has the toolbar at the top</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1050</x>
-      <y>200</y>
+      <x>990</x>
+      <y>60</y>
       <w>210</w>
       <h>160</h>
     </coordinates>
     <panel_attributes>_Sign Up_
 --
-Has Toolbar
-3 text boxes:
+
+4 text boxes:
+Email
 Username
 Password
 Repeat password
-2 buttons:
+1 button:
 Create account
-Back to landing</panel_attributes>
+</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>820</x>
-      <y>400</y>
-      <w>210</w>
-      <h>130</h>
-    </coordinates>
-    <panel_attributes>_Category_
---
-Has Toolbar
-Link on top to Products page
-Shows all products
-in a grid
-Clicking on product
-goes to product page</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>570</x>
-      <y>570</y>
+      <x>760</x>
+      <y>650</y>
       <w>230</w>
-      <h>130</h>
+      <h>170</h>
     </coordinates>
     <panel_attributes>_Cart_
 --
 Has Toolbar
 List of items
-Button next to each to add/remove
+Button next to each to remove item
+Subtotal
+Shipping
+Total
 2 buttons:
 Continue shopping(Products page)
-Check out</panel_attributes>
+Proceed to checkout</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>790</x>
-      <y>440</y>
-      <w>50</w>
-      <h>30</h>
-    </coordinates>
-    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
-    <additional_attributes>30.0;10.0;10.0;10.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>440</x>
+      <x>480</x>
       <y>120</y>
-      <w>160</w>
-      <h>100</h>
+      <w>120</w>
+      <h>60</h>
     </coordinates>
-    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
-    <additional_attributes>10.0;80.0;140.0;10.0</additional_attributes>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+OPP
+account
+login</panel_attributes>
+    <additional_attributes>10.0;20.0;100.0;20.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>320</x>
-      <y>240</y>
-      <w>50</w>
-      <h>30</h>
+      <x>780</x>
+      <y>110</y>
+      <w>230</w>
+      <h>40</h>
     </coordinates>
-    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
-    <additional_attributes>10.0;10.0;30.0;10.0</additional_attributes>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+Sign Up clicked</panel_attributes>
+    <additional_attributes>210.0;20.0;10.0;20.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>640</x>
-      <y>120</y>
-      <w>40</w>
-      <h>100</h>
+      <x>460</x>
+      <y>310</y>
+      <w>150</w>
+      <h>50</h>
     </coordinates>
-    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
-    <additional_attributes>10.0;80.0;20.0;10.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>680</x>
-      <y>120</y>
-      <w>250</w>
-      <h>100</h>
-    </coordinates>
-    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
-    <additional_attributes>230.0;80.0;10.0;10.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>720</x>
-      <y>120</y>
-      <w>440</w>
-      <h>100</h>
-    </coordinates>
-    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
-    <additional_attributes>420.0;80.0;10.0;10.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>1020</x>
-      <y>440</y>
-      <w>50</w>
-      <h>30</h>
-    </coordinates>
-    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
-    <additional_attributes>30.0;10.0;10.0;10.0</additional_attributes>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+View product
+button clicked</panel_attributes>
+    <additional_attributes>10.0;20.0;130.0;20.0</additional_attributes>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>820</x>
-      <y>570</y>
+      <x>470</x>
+      <y>660</y>
       <w>210</w>
       <h>480</h>
     </coordinates>
@@ -289,6 +190,7 @@ Credit card info:
 3 text boxes:
 Credit Card Number
 CVV
+Expy Date
 
 Billing Address:
 5 text boxes
@@ -318,8 +220,8 @@ Order
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1050</x>
-      <y>570</y>
+      <x>200</x>
+      <y>660</y>
       <w>210</w>
       <h>110</h>
     </coordinates>
@@ -335,25 +237,7 @@ Continue Shopping(Products)</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>110</x>
-      <y>410</y>
-      <w>210</w>
-      <h>110</h>
-    </coordinates>
-    <panel_attributes>_Search_
---
-Has Toolbar
-1 textbox:
-Search
-2 buttons:
-Find
-Clear</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>340</x>
+      <x>590</x>
       <y>410</y>
       <w>210</w>
       <h>130</h>
@@ -365,70 +249,16 @@ Shows all product results
 in a grid
 Clicking on product
 goes to product page
-1 button: Back to search</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>310</x>
-      <y>440</y>
-      <w>50</w>
-      <h>30</h>
-    </coordinates>
-    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
-    <additional_attributes>30.0;10.0;10.0;10.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>790</x>
-      <y>600</y>
-      <w>60</w>
-      <h>30</h>
-    </coordinates>
-    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
-    <additional_attributes>40.0;10.0;10.0;10.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>1020</x>
-      <y>610</y>
-      <w>60</w>
-      <h>30</h>
-    </coordinates>
-    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
-    <additional_attributes>40.0;10.0;10.0;10.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLPackage</id>
-    <coordinates>
-      <x>140</x>
-      <y>610</y>
-      <w>200</w>
-      <h>170</h>
-    </coordinates>
-    <panel_attributes>Toolbar Contains:
---
-bg=orange
-In order:
-Logo(Customer Home)
-Search Bar
-Search Button
-Login/Signup(if not logged in)
-Account(if logged in)
-Cart(text link and icon)
-Cart quantity in parentheses(0)</panel_attributes>
+</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1270</x>
-      <y>390</y>
+      <x>1210</x>
+      <y>210</y>
       <w>210</w>
-      <h>410</h>
+      <h>430</h>
     </coordinates>
     <panel_attributes>_Account_
 --
@@ -454,30 +284,261 @@ City
 State initials
 Zip code
 
-1 button:
-Logout</panel_attributes>
+2 buttons:
+Change username/password
+Change Account info</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>920</x>
-      <y>350</y>
-      <w>380</w>
-      <h>60</h>
+      <x>690</x>
+      <y>200</y>
+      <w>90</w>
+      <h>100</h>
     </coordinates>
-    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
-    <additional_attributes>360.0;40.0;10.0;10.0</additional_attributes>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+Customer
+account
+login</panel_attributes>
+    <additional_attributes>10.0;80.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1020</x>
-      <y>250</y>
-      <w>50</w>
-      <h>30</h>
+      <x>610</x>
+      <y>200</y>
+      <w>80</w>
+      <h>100</h>
     </coordinates>
-    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
-    <additional_attributes>10.0;10.0;30.0;10.0</additional_attributes>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+Continue
+as guest
+clicked</panel_attributes>
+    <additional_attributes>10.0;80.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>890</x>
+      <y>400</y>
+      <w>230</w>
+      <h>190</h>
+    </coordinates>
+    <panel_attributes>_Toolbar(not a webpage)_
+--
+Logo(goes to products page)
+Search bar(input and search button)
+Cart link(shows quantity in cart)
+
+If guest:
+Login(goes to login)
+Sign Up(goes to signup)
+If customer:
+Account(goes to Account)
+Sign Out (goes to login)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>790</x>
+      <y>330</y>
+      <w>120</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+Logo
+clicked</panel_attributes>
+    <additional_attributes>10.0;10.0;100.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>790</x>
+      <y>430</y>
+      <w>120</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+Search button
+clicked</panel_attributes>
+    <additional_attributes>10.0;20.0;100.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>780</x>
+      <y>150</y>
+      <w>230</w>
+      <h>270</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+Login
+clicked</panel_attributes>
+    <additional_attributes>10.0;10.0;210.0;250.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>750</x>
+      <y>200</y>
+      <w>190</w>
+      <h>220</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+Sign out
+clicked</panel_attributes>
+    <additional_attributes>10.0;10.0;170.0;200.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>460</x>
+      <y>370</y>
+      <w>150</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+View product
+button clicked</panel_attributes>
+    <additional_attributes>10.0;10.0;130.0;110.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>990</x>
+      <y>210</y>
+      <w>110</w>
+      <h>210</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+Sign up
+clicked</panel_attributes>
+    <additional_attributes>70.0;10.0;10.0;190.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1110</x>
+      <y>430</y>
+      <w>120</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+Account
+clicked</panel_attributes>
+    <additional_attributes>100.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1210</x>
+      <y>690</y>
+      <w>210</w>
+      <h>210</h>
+    </coordinates>
+    <panel_attributes>_Change Username/Password_
+--
+Has Toolbar
+3 textboxes:
+Username
+Password
+Cofirm Password
+New Username
+(required to change username)
+
+3 buttons:
+Change other account info
+Change Username
+Change Password</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1300</x>
+      <y>630</y>
+      <w>160</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+Change
+Username/password
+clicked</panel_attributes>
+    <additional_attributes>10.0;60.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>890</x>
+      <y>840</y>
+      <w>210</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>_Change Password_
+--
+Has Toolbar
+2 text boxes:
+New Password
+Confirm New Password
+Change Password
+
+1 button:
+Change Password</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1090</x>
+      <y>800</y>
+      <w>140</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+Change Password
+clicked</panel_attributes>
+    <additional_attributes>10.0;120.0;120.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>880</x>
+      <y>580</y>
+      <w>120</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+Cart
+Clicked</panel_attributes>
+    <additional_attributes>10.0;70.0;100.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>670</x>
+      <y>710</y>
+      <w>110</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+Proceed to
+checkout
+clicked</panel_attributes>
+    <additional_attributes>10.0;20.0;90.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>400</x>
+      <y>680</y>
+      <w>90</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+Order
+clicked</panel_attributes>
+    <additional_attributes>10.0;20.0;70.0;20.0</additional_attributes>
   </element>
 </diagram>
